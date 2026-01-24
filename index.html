@@ -253,7 +253,7 @@
             else { document.getElementById('auth-screen').style.display = 'block'; document.getElementById('main-app').classList.remove('active'); }
         });
 
-        // 특성 추가 (일회성 노출용)
+        // 특성 추가 로직
         window.showTraitInput = () => {
             const input = document.getElementById('new-trait-input');
             const btn = document.getElementById('add-trait-btn');
@@ -270,8 +270,8 @@
             
             if(val) {
                 const span = document.createElement('span');
-                // 'temp-trait' 클래스를 부여하여 저장 시 제외되도록 함
-                span.className = 'trait-chip selected temp-trait'; 
+                // 저장 시 'private-trait'임을 구분하기 위해 클래스 추가
+                span.className = 'trait-chip selected private-trait'; 
                 span.innerText = val;
                 span.onclick = function() { toggleTrait(this); };
                 document.getElementById('trait-box').insertBefore(span, input);
@@ -299,8 +299,12 @@
 
         window.saveData = async () => {
             if(!selectedFile) return alert("이미지를 먼저 소환하세요.");
-            // ⭐️ 중요: .temp-trait(일회성 추가 특성)은 저장 목록에서 제외함
-            const traits = [...document.querySelectorAll('.trait-chip.selected:not(.temp-trait)')].map(t => t.innerText);
+            
+            // 모든 선택된 특성을 가져와서 저장 (private 여부도 데이터에 포함)
+            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => ({
+                text: t.innerText,
+                isPrivate: t.classList.contains('private-trait')
+            }));
             
             const sRef = ref(storage, `souls/${Date.now()}`);
             try {
@@ -343,23 +347,56 @@
             document.getElementById('upload-zone').style.display = 'none';
             document.getElementById('re-summon-btn').style.display = 'block';
 
-            // 불러오기 시 일회성 특성은 데이터에 없으므로 기본 특성들만 체크됨
-            const chips = document.querySelectorAll('.trait-chip.base-trait');
-            chips.forEach(chip => {
-                if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
-                else chip.classList.remove('selected');
-            });
-
-            // 상세 보기 시 이전의 일회성 특성 칩들은 모두 제거
-            document.querySelectorAll('.temp-trait').forEach(t => t.remove());
+            const traitBox = document.getElementById('trait-box');
+            const input = document.getElementById('new-trait-input');
+            
+            // 기존 칩들 정리 (기본 4개 제외하고 동적으로 생성된 것들 삭제)
+            document.querySelectorAll('.private-trait').forEach(t => t.remove());
 
             const isOwner = currentUser && (currentUser.uid === data.author);
+            
+            // 저장된 특성 데이터 불러오기
+            if (data.traits && Array.isArray(data.traits)) {
+                data.traits.forEach(tData => {
+                    const traitText = typeof tData === 'string' ? tData : tData.text;
+                    const isPrivate = typeof tData === 'object' ? tData.isPrivate : false;
+
+                    // ⭐️ 핵심 로직: 비공개 특성인데 주인이 아니면 생성하지 않음
+                    if (isPrivate && !isOwner) return;
+
+                    // 기본 칩인지 확인
+                    const baseChips = document.querySelectorAll('.base-trait');
+                    let foundBase = false;
+                    baseChips.forEach(bc => {
+                        if (bc.innerText === traitText) {
+                            bc.classList.add('selected');
+                            foundBase = true;
+                        }
+                    });
+
+                    // 기본 칩이 아니거나 비공개 칩인 경우 새로 생성해서 보여줌
+                    if (!foundBase || isPrivate) {
+                        const span = document.createElement('span');
+                        span.className = 'trait-chip selected';
+                        if (isPrivate) span.classList.add('private-trait');
+                        span.innerText = traitText;
+                        span.onclick = function() { if(isOwner) toggleTrait(this); };
+                        traitBox.insertBefore(span, input);
+                    }
+                });
+            }
+
             document.getElementById('save-btn').style.display = 'none';
             document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
+            // 주인이 아니면 + 버튼 숨김
+            document.getElementById('add-trait-btn').style.display = isOwner ? 'inline-block' : 'none';
         }
 
         window.updateData = async () => {
-            const traits = [...document.querySelectorAll('.trait-chip.selected:not(.temp-trait)')].map(t => t.innerText);
+            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => ({
+                text: t.innerText,
+                isPrivate: t.classList.contains('private-trait')
+            }));
             await updateDoc(doc(db, "characters", currentDocId), {
                 nickname: document.getElementById('nickname').value,
                 gender: document.getElementById('gender').value,
