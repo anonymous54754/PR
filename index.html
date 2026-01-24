@@ -85,14 +85,26 @@
         .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
         .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
 
-        /* 추가된 스타일 */
         .pw-container { position: relative; }
+        
+        /* 👁️ 라인 아이콘 스타일 */
         .pw-toggle { 
-            position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 0.8rem; 
-            color: var(--g-gold); opacity: 0.6; 
+            position: absolute; right: 12px; top: 11px; cursor: pointer;
+            width: 18px; height: 18px; border: 1.5px solid var(--g-gold);
+            border-radius: 50% 2px; transform: rotate(45deg); opacity: 0.6;
         }
-        .add-trait-row { display: flex; gap: 5px; margin-top: 5px; }
-        .small-btn { padding: 5px 10px; font-size: 0.7rem; clip-path: none; margin: 0; }
+        .pw-toggle::after {
+            content: ""; position: absolute; width: 6px; height: 6px; 
+            background: var(--g-gold); border-radius: 50%; top: 5px; left: 5px;
+        }
+
+        .add-trait-trigger {
+            font-weight: bold; font-size: 1rem; color: var(--g-gold); padding: 0 8px; border: 1px dashed var(--g-gold);
+        }
+        #new-trait-input {
+            width: 80px; height: 24px; padding: 2px 5px; font-size: 0.75rem; margin: 0 2px;
+            display: none; vertical-align: middle; border-color: var(--g-gold);
+        }
     </style>
 </head>
 <body>
@@ -104,7 +116,7 @@
         <input type="email" id="email" placeholder="SOUL ID">
         <div class="pw-container">
             <input type="password" id="pw" placeholder="PASSWORD">
-            <span class="pw-toggle" id="pw-toggle">👁️</span>
+            <div class="pw-toggle" id="pw-toggle"></div>
         </div>
         <button class="g-btn" id="login-trigger" style="width: 100%;">ASCEND</button>
         <button class="g-btn" id="signup-trigger" style="width: 100%; background: #111; margin-top: 5px; font-size: 0.7rem;">CREATE NEW SOUL</button>
@@ -146,14 +158,13 @@
 
                 <label>TRAITS</label>
                 <div id="trait-box" style="margin-bottom: 10px;">
-                    <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
-                    <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
-                    <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
-                    <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
-                </div>
-                <div class="add-trait-row">
-                    <input type="text" id="new-trait-input" placeholder="NEW TRAIT..." style="margin:0; font-size: 0.8rem;">
-                    <button class="g-btn small-btn" onclick="addNewTrait()">ADD</button>
+                    <span class="trait-chip base-trait" onclick="toggleTrait(this)">용감함</span>
+                    <span class="trait-chip base-trait" onclick="toggleTrait(this)">광기</span>
+                    <span class="trait-chip base-trait" onclick="toggleTrait(this)">냉혈</span>
+                    <span class="trait-chip base-trait" onclick="toggleTrait(this)">타락</span>
+                    
+                    <input type="text" id="new-trait-input" placeholder="...">
+                    <span class="trait-chip add-trait-trigger" id="add-trait-btn" onclick="showTraitInput()">+</span>
                 </div>
                 
                 <label style="display:block; margin-top:15px;">CHRONICLE</label><textarea id="bio" rows="4"></textarea>
@@ -211,29 +222,30 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // --- 데이터 및 기능 로직 ---
+        // --- 로직 ---
         let currentUser = null, selectedFile = null, currentDocId = null;
 
-        // 비밀번호 표시 기능
         document.getElementById('pw-toggle').onclick = () => {
             const pwInput = document.getElementById('pw');
-            pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+            const toggleBtn = document.getElementById('pw-toggle');
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                toggleBtn.style.opacity = '1';
+            } else {
+                pwInput.type = 'password';
+                toggleBtn.style.opacity = '0.6';
+            }
         };
 
-        // 로그인
         document.getElementById('login-trigger').onclick = async () => {
             const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ERROR: " + e.message); }
+            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("계정을 확인하세요."); }
         };
 
-        // 회원가입
         document.getElementById('signup-trigger').onclick = async () => {
             const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
             if(!email || !pw) return alert("Email/PW를 입력하세요.");
-            try { 
-                await createUserWithEmailAndPassword(auth, email, pw); 
-                alert("영혼의 계약이 완료되었습니다. (회원가입 성공)");
-            } catch(e) { alert("ERROR: " + e.message); }
+            try { await createUserWithEmailAndPassword(auth, email, pw); alert("가입 완료"); } catch(e) { alert("실패: " + e.message); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -241,20 +253,42 @@
             else { document.getElementById('auth-screen').style.display = 'block'; document.getElementById('main-app').classList.remove('active'); }
         });
 
-        // 특성 관련
-        window.toggleTrait = (el) => el.classList.toggle('selected');
-        
-        window.addNewTrait = () => {
-            const val = document.getElementById('new-trait-input').value.trim();
-            if(!val) return;
-            const span = document.createElement('span');
-            span.className = 'trait-chip selected';
-            span.innerText = val;
-            span.onclick = function() { toggleTrait(this); };
-            document.getElementById('trait-box').appendChild(span);
-            document.getElementById('new-trait-input').value = "";
+        // 특성 추가 (일회성 노출용)
+        window.showTraitInput = () => {
+            const input = document.getElementById('new-trait-input');
+            const btn = document.getElementById('add-trait-btn');
+            input.style.display = 'inline-block';
+            btn.innerText = 'OK';
+            btn.onclick = addNewTrait;
+            input.focus();
         };
 
+        window.addNewTrait = () => {
+            const input = document.getElementById('new-trait-input');
+            const btn = document.getElementById('add-trait-btn');
+            const val = input.value.trim();
+            
+            if(val) {
+                const span = document.createElement('span');
+                // 'temp-trait' 클래스를 부여하여 저장 시 제외되도록 함
+                span.className = 'trait-chip selected temp-trait'; 
+                span.innerText = val;
+                span.onclick = function() { toggleTrait(this); };
+                document.getElementById('trait-box').insertBefore(span, input);
+            }
+            
+            input.value = "";
+            input.style.display = 'none';
+            btn.innerText = '+';
+            btn.onclick = showTraitInput;
+        };
+
+        document.getElementById('new-trait-input').onkeypress = (e) => {
+            if(e.key === 'Enter') addNewTrait();
+        };
+
+        window.toggleTrait = (el) => el.classList.toggle('selected');
+        
         window.previewHero = (e) => {
             selectedFile = e.target.files[0]; if (!selectedFile) return;
             document.getElementById('main-view-img').src = URL.createObjectURL(selectedFile);
@@ -265,7 +299,9 @@
 
         window.saveData = async () => {
             if(!selectedFile) return alert("이미지를 먼저 소환하세요.");
-            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
+            // ⭐️ 중요: .temp-trait(일회성 추가 특성)은 저장 목록에서 제외함
+            const traits = [...document.querySelectorAll('.trait-chip.selected:not(.temp-trait)')].map(t => t.innerText);
+            
             const sRef = ref(storage, `souls/${Date.now()}`);
             try {
                 const url = await getDownloadURL((await uploadBytes(sRef, selectedFile)).ref);
@@ -307,26 +343,15 @@
             document.getElementById('upload-zone').style.display = 'none';
             document.getElementById('re-summon-btn').style.display = 'block';
 
-            // 특성 매칭 및 커스텀 특성 복원
-            const traitBox = document.getElementById('trait-box');
-            const chips = traitBox.querySelectorAll('.trait-chip');
-            const chipTexts = Array.from(chips).map(c => c.innerText);
-            
+            // 불러오기 시 일회성 특성은 데이터에 없으므로 기본 특성들만 체크됨
+            const chips = document.querySelectorAll('.trait-chip.base-trait');
             chips.forEach(chip => {
                 if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
                 else chip.classList.remove('selected');
             });
 
-            // 리스트에 없는 특성이 데이터에 있다면 추가
-            data.traits.forEach(t => {
-                if(!chipTexts.includes(t)) {
-                    const span = document.createElement('span');
-                    span.className = 'trait-chip selected';
-                    span.innerText = t;
-                    span.onclick = function() { toggleTrait(this); };
-                    traitBox.appendChild(span);
-                }
-            });
+            // 상세 보기 시 이전의 일회성 특성 칩들은 모두 제거
+            document.querySelectorAll('.temp-trait').forEach(t => t.remove());
 
             const isOwner = currentUser && (currentUser.uid === data.author);
             document.getElementById('save-btn').style.display = 'none';
@@ -334,7 +359,7 @@
         }
 
         window.updateData = async () => {
-            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
+            const traits = [...document.querySelectorAll('.trait-chip.selected:not(.temp-trait)')].map(t => t.innerText);
             await updateDoc(doc(db, "characters", currentDocId), {
                 nickname: document.getElementById('nickname').value,
                 gender: document.getElementById('gender').value,
