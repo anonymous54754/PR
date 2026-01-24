@@ -2,182 +2,135 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Gothic Abyss Archive - Grand Luxury</title>
+    <title>Gothic Abyss Archive - Luxury UI</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --g-red: #b40000;
+            --g-red: rgba(180, 0, 0, 0.7);
             --g-gold: #c5a059;
-            --g-bright-gold: #ffdf91;
             --g-black: #050505;
+            --g-scroll-bg: #121212;
         }
 
-        /* ✨ 빤짝빤짝 황금빛 스크롤바 */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #0a0000; border-left: 1px solid #222; }
+        /* ⭐️ 빤짝빤짝 고딕풍 커스텀 스크롤바 (전체 적용) */
+        ::-webkit-scrollbar {
+            width: 8px; /* 너무 굵지 않게 */
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--g-scroll-bg);
+            border-left: 1px solid #222;
+        }
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--g-gold), var(--g-bright-gold), var(--g-gold));
-            border: 2px solid #000;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.6);
+            background: linear-gradient(180deg, #8a6d3b, var(--g-gold), #8a6d3b);
+            border: 1px solid #000;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); /* 은은한 황금빛 광채 */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--g-gold), #fff, var(--g-gold)); /* 호버 시 더 밝게 빛남 */
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.8);
         }
 
         body {
             margin: 0; padding: 0; width: 100%; height: 100vh;
             font-family: 'Noto Serif KR', serif;
-            background: radial-gradient(circle at center, #2a0505 0%, var(--g-black) 100%);
+            background: radial-gradient(circle at center, #1a0505 0%, var(--g-black) 90%);
             display: flex; justify-content: center; align-items: center;
             color: var(--g-gold); overflow: hidden; position: relative;
         }
 
-        /* ✨ 배경 파티클 (전체 화면) */
-        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        /* ✨ 파티클 배경 */
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 
-        /* 👑 고딕 패널: 화려한 금색 프레임 */
         .gothic-panel {
-            background: rgba(10, 0, 0, 0.9);
-            border: 15px solid transparent;
-            border-image: url('https://www.transparentpng.com/download/gold-frame/vCqE0E-gold-frame-free-download.png') 40 stretch;
-            box-shadow: 0 0 80px rgba(0, 0, 0, 1), inset 0 0 30px rgba(180, 0, 0, 0.3);
-            padding: 30px; display: flex; flex-direction: column; position: relative;
-            box-sizing: border-box; z-index: 10;
+            background: rgba(8, 0, 0, 0.98);
+            border: 10px solid transparent;
+            border-image: url('https://www.transparentpng.com/download/gold-frame/vCqE0E-gold-frame-free-download.png') 30 stretch;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+            padding: 20px; display: flex; flex-direction: column; position: relative;
+            height: 100%; box-sizing: border-box; z-index: 10;
         }
 
-        /* 로그인창: 더 화려하게 */
-        .auth-panel { 
-            width: 380px; text-align: center; 
-            animation: emerge 1.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        @keyframes emerge {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); filter: blur(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-        }
-
-        .input-group { position: relative; width: 100%; margin-bottom: 20px; }
-        
-        .pw-eye {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            cursor: pointer; font-size: 1.1rem; color: var(--g-gold); 
-            text-shadow: 0 0 5px #000; transition: 0.3s;
-        }
-        .pw-eye:hover { color: var(--g-bright-gold); text-shadow: 0 0 10px var(--g-gold); }
-
-        .app-grid { display: none; width: 98vw; height: 92vh; grid-template-columns: 340px 1fr 440px; gap: 20px; }
+        .app-grid { display: none; width: 98vw; height: 92vh; grid-template-columns: 320px 1fr 420px; gap: 20px; align-items: start; }
         .active { display: grid; }
 
-        /* 중앙 캐릭터 스테이지 */
-        .summon-stage { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; overflow-y: auto; padding: 40px 0; }
+        /* 중앙 스테이지 */
+        .summon-stage {
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; height: 100%; overflow-y: auto; padding: 40px 0; z-index: 10;
+        }
         #main-view-img { 
-            width: auto; max-width: 80%; height: auto;
-            filter: drop-shadow(0 0 30px var(--g-red)) drop-shadow(0 0 10px var(--g-gold));
-            animation: floatSoul 6s ease-in-out infinite; margin-bottom: 40px;
+            width: auto; max-width: 80%; height: auto; 
+            filter: drop-shadow(0 0 25px var(--g-red)) drop-shadow(0 0 60px rgba(0,0,0,0.9));
+            animation: floatSoul 5s ease-in-out infinite; margin-bottom: 40px;
         }
-        @keyframes floatSoul {
-            0%, 100% { transform: translateY(0) rotate(-0.5deg) scale(1); }
-            50% { transform: translateY(-30px) rotate(0.5deg) scale(1.02); }
-        }
+        @keyframes floatSoul { 0%, 100% { transform: translateY(0) rotate(-0.5deg); } 50% { transform: translateY(-20px) rotate(0.5deg); } }
 
-        /* ⚔️ 화려한 버튼 디자인 */
+        /* 버튼 및 입력창 */
         .g-btn {
-            background: linear-gradient(135deg, #600 0%, #200 50%, #000 100%);
-            color: var(--g-bright-gold); border: 1px solid var(--g-gold);
-            padding: 14px; font-family: 'Cinzel Decorative'; font-weight: 900;
-            cursor: pointer; letter-spacing: 2px;
-            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.4s;
+            background: linear-gradient(135deg, #300, #000); color: var(--g-gold); border: 1px solid var(--g-gold);
+            padding: 12px; font-family: 'Cinzel Decorative'; cursor: pointer;
+            clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%); margin-bottom: 5px;
+            transition: 0.3s;
         }
-        .g-btn:hover { 
-            background: var(--g-gold); color: #000; 
-            box-shadow: 0 0 25px var(--g-gold); transform: translateY(-2px);
-        }
-
-        .text-link { 
-            font-size: 0.8rem; color: var(--g-gold); cursor: pointer; margin-top: 20px; 
-            text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; transition: 0.3s;
-        }
-        .text-link:hover { opacity: 1; text-shadow: 0 0 8px var(--g-gold); }
-
-        /* 입력창 디자인 */
+        .g-btn:hover { background: var(--g-gold); color: #000; box-shadow: 0 0 15px var(--g-gold); }
+        
         input, textarea, select { 
-            background: rgba(30, 0, 0, 0.5); border: 1px solid var(--g-gold); 
-            color: #fff; padding: 12px; width: 100%; box-sizing: border-box; 
-            box-shadow: inset 0 0 10px #000; transition: 0.3s;
+            background: #111; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
+            font-family: 'Noto Serif KR', serif;
         }
-        input:focus { border-color: var(--g-bright-gold); background: rgba(60, 0, 0, 0.7); box-shadow: 0 0 10px var(--g-red); }
-
-        /* 특성 칩 화려화 */
+        
+        /* 특성 칩 */
         .trait-chip { 
-            padding: 6px 14px; border: 1px solid var(--g-gold); font-size: 0.8rem; 
-            cursor: pointer; margin: 4px; display: inline-block; 
-            background: rgba(0,0,0,0.7); color: var(--g-gold); transition: 0.3s;
+            padding: 4px 10px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 2px; 
+            display: inline-block; transition: 0.3s; background: rgba(0,0,0,0.5);
         }
-        .trait-chip.selected { 
-            background: var(--g-red); color: #fff; border-color: #f00; 
-            box-shadow: 0 0 15px var(--g-red); transform: scale(1.05);
-        }
+        .trait-chip.selected { background: #800; color: #fff; border-color: #f00; box-shadow: 0 0 8px #800; }
 
         .hero-card { 
-            background: linear-gradient(90deg, rgba(80,0,0,0.3), transparent); 
-            border: 1px solid #444; padding: 12px; margin-bottom: 12px; 
-            cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s;
+            background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 10px; margin-bottom: 10px; 
+            cursor: pointer; display: flex; gap: 15px; align-items: center; transition: 0.2s;
         }
-        .hero-card:hover { border-color: var(--g-bright-gold); background: rgba(120,0,0,0.3); transform: translateX(5px); }
-        .hero-card img { width: 55px; height: 55px; object-fit: cover; border: 2px solid var(--g-gold); box-shadow: 0 0 10px #000; }
-
-        .logout-btn { 
-            position: absolute; top: 15px; right: 20px; color: var(--g-red); 
-            font-size: 0.7rem; cursor: pointer; border: 1px solid var(--g-red); 
-            padding: 3px 8px; text-transform: uppercase;
-        }
-        .logout-btn:hover { background: var(--g-red); color: #fff; }
-
-        label { display: block; font-family: 'Cinzel Decorative'; font-size: 0.8rem; margin: 10px 0 5px; color: var(--g-bright-gold); }
+        .hero-card:hover { border-color: var(--g-gold); background: rgba(100,0,0,0.1); }
+        .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
+        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <canvas id="particle-canvas"></canvas>
 
-    <div id="auth-screen" class="gothic-panel auth-panel">
-        <h1 style="font-family: 'Cinzel Decorative'; letter-spacing: 8px; margin-bottom: 40px; text-shadow: 0 0 20px var(--g-red);">ABYSS</h1>
-        
-        <div class="input-group">
-            <input type="email" id="email" placeholder="SOUL IDENTIFIER">
-        </div>
-        
-        <div class="input-group">
-            <input type="password" id="pw" placeholder="SECRET KEY">
-            <span class="pw-eye" onclick="togglePW()">👁️</span>
-        </div>
-
-        <button class="g-btn" style="width: 100%;" id="login-trigger">ENTER THE VOID</button>
-        <div class="text-link" id="signup-trigger">Forge New Soul</div>
+    <div id="auth-screen" class="gothic-panel" style="width: 320px; height: auto;">
+        <h2 style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
+        <input type="email" id="email" placeholder="SOUL ID">
+        <input type="password" id="pw" placeholder="PASSWORD">
+        <button class="g-btn" id="login-trigger" style="width: 100%;">ASCEND</button>
     </div>
 
     <div id="main-app" class="app-grid">
         <div class="gothic-panel">
-            <span class="logout-btn" id="logout-trigger">Release</span>
-            <h3 style="font-family: 'Cinzel Decorative'; font-size: 1.5rem; letter-spacing: 3px; margin-bottom: 20px;">ARCHIVES</h3>
-            <div id="hero-list" style="overflow-y: auto; flex: 1; padding-right: 8px;"></div>
-            <button class="g-btn" style="font-size: 0.8rem; margin-top: 15px;" onclick="location.reload()">NEW RECORD</button>
+            <button class="logout-btn" id="logout-trigger">LOGOUT</button>
+            <h3 style="font-family: 'Cinzel Decorative';">ARCHIVES</h3>
+            <div id="hero-list" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
+            <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="location.reload()">NEW RECORD</button>
         </div>
 
         <div class="summon-stage">
             <img id="main-view-img" src="" style="display: none;">
-            <div id="upload-zone" style="text-align: center; margin-top: 180px;">
-                <p style="letter-spacing: 15px; opacity: 0.2; font-size: 3rem; margin-bottom: 40px;">VOID</p>
-                <button class="g-btn" style="width: 250px;" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
+            <div id="upload-zone" style="text-align: center; margin-top: 200px;">
+                <p style="letter-spacing: 5px; font-size: 1.5rem; opacity: 0.4;">VOID</p>
+                <button class="g-btn" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
             </div>
-            <div id="re-summon-btn" style="display:none; color:var(--g-gold); cursor:pointer; font-size:0.8rem; margin-bottom: 20px; letter-spacing: 2px;" onclick="document.getElementById('file-in').click()">[ RE-SUMMON ]</div>
+            <div class="re-summon-btn" id="re-summon-btn" style="display:none; color:var(--g-gold); cursor:pointer; font-size:0.8rem; margin-bottom: 20px;" onclick="document.getElementById('file-in').click()">[ RE-SUMMON ]</div>
             <input type="file" id="file-in" hidden onchange="previewHero(event)" accept="image/*">
         </div>
 
         <div class="gothic-panel">
-            <h3 style="font-family: 'Cinzel Decorative'; font-size: 1.5rem; letter-spacing: 3px; margin-bottom: 15px;">CONTRACT</h3>
-            <div style="overflow-y: auto; flex: 1; padding-right: 12px;">
-                <label>SOUL NAME</label><input type="text" id="nickname">
+            <h3 style="font-family: 'Cinzel Decorative';">SOUL CONTRACT</h3>
+            <div style="overflow-y: auto; flex: 1; padding-right: 10px;">
+                <label>NAME</label><input type="text" id="nickname">
                 
-                <div style="display: flex; gap: 15px;">
+                <div style="display: flex; gap: 10px;">
                     <div style="flex:1;"><label>GENDER</label>
                         <select id="gender"><option>MALE</option><option>FEMALE</option></select>
                     </div>
@@ -186,10 +139,10 @@
                     </div>
                 </div>
 
-                <label>POWER LEVEL</label><input type="number" id="level" value="1">
+                <label>LEVEL</label><input type="number" id="level" value="1">
 
                 <label>TRAITS</label>
-                <div id="trait-box">
+                <div id="trait-box" style="margin-bottom: 10px;">
                     <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
@@ -199,21 +152,20 @@
                 <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
                 <label>FORBIDDEN NOTE</label><textarea id="note" rows="2"></textarea>
             </div>
-            
-            <div id="btn-group" style="margin-top: 20px;">
-                <button id="save-btn" class="g-btn" style="width: 100%;" onclick="saveData()">SEAL SOUL</button>
+            <div id="btn-group" style="margin-top: 15px;">
+                <button id="save-btn" class="g-btn" style="width: 100%;" onclick="saveData()">SEAL CONTRACT</button>
                 <div id="edit-group" style="display: none; gap: 10px;">
-                    <button class="g-btn" style="flex: 1; background: linear-gradient(135deg, #042, #000);" onclick="updateData()">UPDATE</button>
-                    <button class="g-btn" style="flex: 1; background: linear-gradient(135deg, #400, #000);" onclick="deleteData()">ERASE</button>
+                    <button class="g-btn" style="flex: 1; background: #004d40;" onclick="updateData()">UPDATE</button>
+                    <button class="g-btn" style="flex: 1; background: #4d0000;" onclick="deleteData()">ERASE</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // Firebase 설정 (기존과 동일하게 유지하여 데이터 보존)
+        // Firebase 및 파티클 로직 (이전과 동일, 안정성 유지)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -231,13 +183,7 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // --- 👁️ PW Toggle ---
-        window.togglePW = () => {
-            const pw = document.getElementById('pw');
-            pw.type = pw.type === 'password' ? 'text' : 'password';
-        };
-
-        // --- ✨ Particle System ---
+        // --- 파티클 시스템 ---
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -248,32 +194,24 @@
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height + canvas.height;
-                this.size = Math.random() * 2.5;
-                this.speedY = Math.random() * 0.5 + 0.1;
+                this.size = Math.random() * 2;
+                this.speedY = Math.random() * 0.4 + 0.2;
                 this.opacity = Math.random() * 0.5;
             }
             update() { this.y -= this.speedY; if (this.y < -10) this.init(); }
             draw() { ctx.fillStyle = `rgba(180, 0, 0, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         }
-        for (let i = 0; i < 120; i++) particles.push(new Particle());
+        for (let i = 0; i < 80; i++) particles.push(new Particle());
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // --- 🔐 Auth & Data ---
+        // --- 데이터 로직 ---
         let currentUser = null, selectedFile = null, currentDocId = null;
 
         document.getElementById('login-trigger').onclick = async () => {
             const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("Access Denied."); }
+            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ID/PW를 확인하세요."); }
         };
-
-        document.getElementById('signup-trigger').onclick = async () => {
-            const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            if(pw.length < 6) return alert("Secret Key is too weak.");
-            try { await createUserWithEmailAndPassword(auth, email, pw); alert("Soul Forged."); } catch(e) { alert(e.message); }
-        };
-
-        document.getElementById('logout-trigger').onclick = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             if(user) { currentUser = user; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').classList.add('active'); loadList(); }
@@ -290,7 +228,7 @@
         };
 
         window.saveData = async () => {
-            if(!selectedFile) return alert("Summon an image.");
+            if(!selectedFile) return alert("이미지를 먼저 소환하세요.");
             const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
             const sRef = ref(storage, `souls/${Date.now()}`);
             try {
@@ -305,7 +243,7 @@
                     imageUrl: url, author: currentUser.uid, time: new Date()
                 });
                 location.reload();
-            } catch(e) { alert("Failed."); }
+            } catch(e) { alert("저장 실패"); }
         };
 
         function loadList() {
@@ -333,7 +271,8 @@
             document.getElementById('upload-zone').style.display = 'none';
             document.getElementById('re-summon-btn').style.display = 'block';
 
-            document.querySelectorAll('.trait-chip').forEach(chip => {
+            const chips = document.querySelectorAll('.trait-chip');
+            chips.forEach(chip => {
                 if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
                 else chip.classList.remove('selected');
             });
@@ -352,10 +291,11 @@
                 level: document.getElementById('level').value,
                 traits: traits, bio: document.getElementById('bio').value, note: document.getElementById('note').value
             });
-            alert("Updated."); location.reload();
+            alert("수정 완료"); location.reload();
         };
 
-        window.deleteData = async () => { if(confirm("Erase?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
+        window.deleteData = async () => { if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
+        document.getElementById('logout-trigger').onclick = () => signOut(auth);
     </script>
 </body>
 </html>
