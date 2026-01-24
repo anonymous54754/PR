@@ -12,22 +12,16 @@
             --g-scroll-bg: #121212;
         }
 
-        /* ⭐️ 빤짝빤짝 고딕풍 커스텀 스크롤바 (전체 적용) */
-        ::-webkit-scrollbar {
-            width: 8px; /* 너무 굵지 않게 */
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--g-scroll-bg);
-            border-left: 1px solid #222;
-        }
+        /* ⭐️ 빤짝빤짝 고딕풍 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--g-scroll-bg); border-left: 1px solid #222; }
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, #8a6d3b, var(--g-gold), #8a6d3b);
-            border: 1px solid #000;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); /* 은은한 황금빛 광채 */
+            border: 1px solid #000; border-radius: 10px;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, var(--g-gold), #fff, var(--g-gold)); /* 호버 시 더 밝게 빛남 */
+            background: linear-gradient(180deg, var(--g-gold), #fff, var(--g-gold));
             box-shadow: 0 0 15px rgba(197, 160, 89, 0.8);
         }
 
@@ -39,7 +33,6 @@
             color: var(--g-gold); overflow: hidden; position: relative;
         }
 
-        /* ✨ 파티클 배경 */
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 
         .gothic-panel {
@@ -54,7 +47,6 @@
         .app-grid { display: none; width: 98vw; height: 92vh; grid-template-columns: 320px 1fr 420px; gap: 20px; align-items: start; }
         .active { display: grid; }
 
-        /* 중앙 스테이지 */
         .summon-stage {
             display: flex; flex-direction: column; align-items: center;
             width: 100%; height: 100%; overflow-y: auto; padding: 40px 0; z-index: 10;
@@ -66,12 +58,11 @@
         }
         @keyframes floatSoul { 0%, 100% { transform: translateY(0) rotate(-0.5deg); } 50% { transform: translateY(-20px) rotate(0.5deg); } }
 
-        /* 버튼 및 입력창 */
         .g-btn {
             background: linear-gradient(135deg, #300, #000); color: var(--g-gold); border: 1px solid var(--g-gold);
             padding: 12px; font-family: 'Cinzel Decorative'; cursor: pointer;
             clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%); margin-bottom: 5px;
-            transition: 0.3s;
+            transition: 0.3s; text-transform: uppercase;
         }
         .g-btn:hover { background: var(--g-gold); color: #000; box-shadow: 0 0 15px var(--g-gold); }
         
@@ -80,7 +71,6 @@
             font-family: 'Noto Serif KR', serif;
         }
         
-        /* 특성 칩 */
         .trait-chip { 
             padding: 4px 10px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 2px; 
             display: inline-block; transition: 0.3s; background: rgba(0,0,0,0.5);
@@ -94,6 +84,15 @@
         .hero-card:hover { border-color: var(--g-gold); background: rgba(100,0,0,0.1); }
         .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
         .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
+
+        /* 추가된 스타일 */
+        .pw-container { position: relative; }
+        .pw-toggle { 
+            position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 0.8rem; 
+            color: var(--g-gold); opacity: 0.6; 
+        }
+        .add-trait-row { display: flex; gap: 5px; margin-top: 5px; }
+        .small-btn { padding: 5px 10px; font-size: 0.7rem; clip-path: none; margin: 0; }
     </style>
 </head>
 <body>
@@ -101,10 +100,14 @@
     <canvas id="particle-canvas"></canvas>
 
     <div id="auth-screen" class="gothic-panel" style="width: 320px; height: auto;">
-        <h2 style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
+        <h2 id="auth-title" style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
         <input type="email" id="email" placeholder="SOUL ID">
-        <input type="password" id="pw" placeholder="PASSWORD">
+        <div class="pw-container">
+            <input type="password" id="pw" placeholder="PASSWORD">
+            <span class="pw-toggle" id="pw-toggle">👁️</span>
+        </div>
         <button class="g-btn" id="login-trigger" style="width: 100%;">ASCEND</button>
+        <button class="g-btn" id="signup-trigger" style="width: 100%; background: #111; margin-top: 5px; font-size: 0.7rem;">CREATE NEW SOUL</button>
     </div>
 
     <div id="main-app" class="app-grid">
@@ -148,8 +151,12 @@
                     <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
                 </div>
+                <div class="add-trait-row">
+                    <input type="text" id="new-trait-input" placeholder="NEW TRAIT..." style="margin:0; font-size: 0.8rem;">
+                    <button class="g-btn small-btn" onclick="addNewTrait()">ADD</button>
+                </div>
                 
-                <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
+                <label style="display:block; margin-top:15px;">CHRONICLE</label><textarea id="bio" rows="4"></textarea>
                 <label>FORBIDDEN NOTE</label><textarea id="note" rows="2"></textarea>
             </div>
             <div id="btn-group" style="margin-top: 15px;">
@@ -163,9 +170,8 @@
     </div>
 
     <script type="module">
-        // Firebase 및 파티클 로직 (이전과 동일, 안정성 유지)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -205,12 +211,29 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // --- 데이터 로직 ---
+        // --- 데이터 및 기능 로직 ---
         let currentUser = null, selectedFile = null, currentDocId = null;
 
+        // 비밀번호 표시 기능
+        document.getElementById('pw-toggle').onclick = () => {
+            const pwInput = document.getElementById('pw');
+            pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+        };
+
+        // 로그인
         document.getElementById('login-trigger').onclick = async () => {
             const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ID/PW를 확인하세요."); }
+            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ERROR: " + e.message); }
+        };
+
+        // 회원가입
+        document.getElementById('signup-trigger').onclick = async () => {
+            const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
+            if(!email || !pw) return alert("Email/PW를 입력하세요.");
+            try { 
+                await createUserWithEmailAndPassword(auth, email, pw); 
+                alert("영혼의 계약이 완료되었습니다. (회원가입 성공)");
+            } catch(e) { alert("ERROR: " + e.message); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -218,7 +241,20 @@
             else { document.getElementById('auth-screen').style.display = 'block'; document.getElementById('main-app').classList.remove('active'); }
         });
 
+        // 특성 관련
         window.toggleTrait = (el) => el.classList.toggle('selected');
+        
+        window.addNewTrait = () => {
+            const val = document.getElementById('new-trait-input').value.trim();
+            if(!val) return;
+            const span = document.createElement('span');
+            span.className = 'trait-chip selected';
+            span.innerText = val;
+            span.onclick = function() { toggleTrait(this); };
+            document.getElementById('trait-box').appendChild(span);
+            document.getElementById('new-trait-input').value = "";
+        };
+
         window.previewHero = (e) => {
             selectedFile = e.target.files[0]; if (!selectedFile) return;
             document.getElementById('main-view-img').src = URL.createObjectURL(selectedFile);
@@ -271,10 +307,25 @@
             document.getElementById('upload-zone').style.display = 'none';
             document.getElementById('re-summon-btn').style.display = 'block';
 
-            const chips = document.querySelectorAll('.trait-chip');
+            // 특성 매칭 및 커스텀 특성 복원
+            const traitBox = document.getElementById('trait-box');
+            const chips = traitBox.querySelectorAll('.trait-chip');
+            const chipTexts = Array.from(chips).map(c => c.innerText);
+            
             chips.forEach(chip => {
                 if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
                 else chip.classList.remove('selected');
+            });
+
+            // 리스트에 없는 특성이 데이터에 있다면 추가
+            data.traits.forEach(t => {
+                if(!chipTexts.includes(t)) {
+                    const span = document.createElement('span');
+                    span.className = 'trait-chip selected';
+                    span.innerText = t;
+                    span.onclick = function() { toggleTrait(this); };
+                    traitBox.appendChild(span);
+                }
             });
 
             const isOwner = currentUser && (currentUser.uid === data.author);
