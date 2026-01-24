@@ -7,132 +7,65 @@
     <style>
         :root {
             --gold: #f3cf7a;
-            --panel-bg: url('https://images.unsplash.com/photo-1587582423116-ec07293f0395?q=80&w=1000&auto=format&fit=crop'); /* 나무 텍스처 */
-            --soft-glow: 0 0 15px rgba(243, 207, 122, 0.5);
+            --panel-bg: rgba(43, 29, 26, 0.95);
+            --wood-texture: url('https://www.transparenttextures.com/patterns/dark-wood.png');
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'MedievalSharp', 'Noto Sans KR', serif;
-            background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-            background-size: cover;
-            color: #eee; overflow: hidden;
+            background: #1a1210 url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover; color: #eee; overflow: hidden;
         }
 
-        /* 공통 패널 스타일 (나무 느낌) */
-        .panel {
-            background: var(--panel-bg);
-            background-size: cover;
-            border: 4px solid #3e2723;
-            outline: 2px solid var(--gold);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 20px rgba(0,0,0,0.5);
-        }
-
-        .screen {
-            display: none; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            position: absolute; justify-content: center; align-items: center;
-        }
+        .screen { display: none; width: 100%; height: 100%; position: absolute; justify-content: center; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
         .active { display: flex; }
 
-        /* 버튼 RPG 스타일 */
+        /* 나무 질감 패널 */
+        .panel {
+            background-color: var(--panel-bg);
+            background-image: var(--wood-texture);
+            border: 3px solid #5d4037;
+            outline: 2px solid var(--gold);
+            border-radius: 8px; padding: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+
+        .main-container { display: grid; grid-template-columns: 280px 1fr 350px; width: 95%; height: 90%; gap: 20px; }
+
+        /* 입력창 및 버튼 디자인 */
+        input, textarea, select { background: #000; border: 1px solid var(--gold); color: #fff; padding: 10px; border-radius: 4px; width: 100%; margin: 5px 0; }
         .btn-game {
             background: linear-gradient(to bottom, #8d6e63, #3e2723);
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            padding: 10px 20px;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-            cursor: pointer;
-            text-shadow: 1px 1px 2px #000;
-            transition: 0.2s;
+            border: 2px solid var(--gold); color: var(--gold);
+            padding: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            font-family: 'Cinzel', serif; width: 100%;
         }
-        .btn-game:hover { filter: brightness(1.3); transform: scale(1.05); }
+        .btn-game:hover { filter: brightness(1.3); transform: translateY(-2px); }
 
-        /* 메인 컨테이너 */
-        .main-container {
-            display: grid; grid-template-columns: 300px 1fr 350px;
-            width: 98%; height: 95%; gap: 15px;
-        }
+        .tag { display: inline-block; padding: 5px 10px; margin: 3px; background: #222; border: 1px solid var(--gold); cursor: pointer; border-radius: 4px; font-size: 13px; }
+        .tag.active { background: var(--gold); color: #000; font-weight: bold; }
 
-        /* 왼쪽 목록 스크롤 설정 */
-        #recent-users-list {
-            height: 80vh; overflow-y: auto; padding-right: 10px;
-        }
-        #recent-users-list::-webkit-scrollbar { width: 8px; }
-        #recent-users-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+        #recent-users-list { height: 500px; overflow-y: auto; }
+        .user-mini-card { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #444; cursor: pointer; }
+        .user-mini-card:hover { background: rgba(255,255,255,0.1); }
 
-        .user-mini-card {
-            display: flex; align-items: center; margin-bottom: 10px;
-            padding: 10px; background: rgba(0,0,0,0.5);
-            border: 1px solid #5d4037; cursor: pointer; border-radius: 5px;
-        }
-        .user-mini-card:hover { border-color: var(--gold); }
-
-        /* 캐릭터 미리보기 */
-        .char-frame {
-            width: 100%; height: 550px; border: 10px double var(--gold);
-            background: rgba(0,0,0,0.4); border-radius: 20px;
-            position: relative; overflow: hidden;
-        }
-
-        /* 특성 태그 */
-        .tag {
-            display: inline-block; padding: 5px 10px; margin: 3px;
-            background: rgba(0,0,0,0.6); border: 1px solid var(--gold);
-            border-radius: 5px; font-size: 13px; cursor: pointer;
-        }
-        .tag.active { background: var(--gold); color: #3e2723; font-weight: bold; }
-
-        /* 쪽지 스타일 */
-        .note-box {
-            background: rgba(255, 255, 255, 0.1); padding: 10px;
-            border-radius: 5px; margin-top: 10px; font-size: 14px;
-            border-left: 4px solid var(--gold);
-        }
-        .secret-note { color: #ffab91; font-style: italic; }
-
-        input, textarea, select {
-            background: #1a1210; border: 1px solid #5d4037; color: white;
-            padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box;
-        }
+        .char-frame { width: 100%; height: 100%; border: 8px double var(--gold); background: #000; position: relative; overflow: hidden; border-radius: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="screen active">
-        <div class="panel" style="width:350px; text-align:center;">
-            <h1 style="font-family:'Cinzel'; color:var(--gold);">ADVENTURER LOGIN</h1>
-            <input type="email" id="login-email" placeholder="이메일 아이디" style="margin-bottom:10px;">
-            <input type="password" id="login-pw" placeholder="비밀번호" style="margin-bottom:20px;">
-            <button class="btn-game" style="width:100%" onclick="handleLogin()">세계 입장</button>
-            <p style="cursor:pointer; font-size:14px; margin-top:10px;" onclick="showScreen('signup-screen')">신규 모험가 등록</p>
-        </div>
-    </div>
-
-    <div id="signup-screen" class="screen">
-        <div class="panel" style="width:350px; text-align:center;">
-            <h1 style="font-family:'Cinzel'; color:var(--gold);">NEW HERO</h1>
-            <input type="email" id="signup-email" placeholder="이메일" style="margin-bottom:10px;">
-            <input type="password" id="signup-pw" placeholder="비밀번호" style="margin-bottom:20px;">
-            <button class="btn-game" style="width:100%" onclick="handleSignup()">등록 완료</button>
-        </div>
-    </div>
-
-    <div id="gender-screen" class="screen">
-        <div style="text-align: center;">
-            <h1 style="font-family:'Cinzel'; color:var(--gold); font-size: 40px;">CHOOSE YOUR PATH</h1>
-            <div style="display:flex; gap:50px;">
+    <div id="gender-screen" class="screen active">
+        <div style="text-align:center;">
+            <h1 style="color:var(--gold); font-family:'Cinzel'; font-size:3rem;">CHOOSE GENDER</h1>
+            <div style="display:flex; gap:60px; margin-top:40px;">
                 <div onclick="selectGender('남성')" style="cursor:pointer;">
-                    <img src="https://www.svgrepo.com/show/347201/male-silhouette.svg" width="150" style="filter:invert(1);">
-                    <h2>MALE</h2>
+                    <img src="https://www.svgrepo.com/show/347201/male-silhouette.svg" width="180" style="filter:invert(1);">
+                    <h2 style="color:var(--gold);">MALE</h2>
                 </div>
                 <div onclick="selectGender('여성')" style="cursor:pointer;">
-                    <img src="https://www.svgrepo.com/show/347200/female-silhouette.svg" width="150" style="filter:invert(1);">
-                    <h2>FEMALE</h2>
+                    <img src="https://www.svgrepo.com/show/347200/female-silhouette.svg" width="180" style="filter:invert(1);">
+                    <h2 style="color:var(--gold);">FEMALE</h2>
                 </div>
             </div>
         </div>
@@ -141,43 +74,36 @@
     <div id="main-screen" class="screen">
         <div class="main-container">
             <div class="panel">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-family:'Cinzel'; color:var(--gold);">ARCHIVES</h3>
-                    <button class="btn-game" style="font-size:12px; padding:5px;" onclick="showScreen('gender-screen')">HOME</button>
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3 style="color:var(--gold); font-family:'Cinzel';">ARCHIVES</h3>
+                    <button class="btn-game" style="width:auto; padding:5px 10px;" onclick="location.reload()">HOME</button>
                 </div>
                 <div id="recent-users-list"></div>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:10px;">
-                <div class="char-frame" id="char-view-area">
-                    <img id="char-img-display" src="" style="width:100%; height:100%; object-fit: cover; display:none;">
-                    <div id="upload-placeholder" style="text-align:center; padding-top: 200px;">
-                        <button class="btn-game" onclick="document.getElementById('file-input').click()">UPLOAD IMAGE</button>
-                    </div>
+            <div class="char-frame">
+                <img id="char-img-display" style="width:100%; height:100%; object-fit:contain; display:none;">
+                <div id="upload-placeholder" style="text-align:center; margin-top:45%;">
+                    <button class="btn-game" style="width:200px;" onclick="document.getElementById('file-input').click()">UPLOAD IMAGE</button>
                     <input type="file" id="file-input" hidden onchange="previewImage(event)">
-                </div>
-                <div id="action-buttons" style="display:flex; gap:10px; justify-content:center; display:none;">
-                    <button id="edit-btn" class="btn-game" style="background:#2e7d32;">수정하기</button>
-                    <button id="delete-btn" class="btn-game" style="background:#c62828;">영구 삭제</button>
                 </div>
             </div>
 
             <div class="panel">
-                <h3 id="form-title" style="font-family:'Cinzel'; color:var(--gold);">NEW CHARACTER</h3>
-                
+                <h3 id="form-title" style="color:var(--gold); font-family:'Cinzel';">NEW CHARACTER</h3>
                 <label>NICKNAME</label>
-                <input type="text" id="nickname">
-
-                <div style="display:flex; gap:10px; margin-top:10px;">
+                <input type="text" id="nickname" placeholder="이름을 입력하세요">
+                
+                <div style="display:flex; gap:10px;">
                     <div style="flex:1;"><label>RACE</label>
                         <select id="race"><option>인간</option><option>엘프</option><option>드워프</option><option>오크</option></select>
                     </div>
                     <div style="flex:1;"><label>LEVEL</label>
-                        <input type="number" id="lv-val" value="1">
+                        <input type="number" id="lv-val" value="1" min="1">
                     </div>
                 </div>
 
-                <label style="display:block; margin-top:10px;">TRAITS</label>
+                <label style="margin-top:15px; display:block;">TRAITS</label>
                 <div id="trait-container">
                     <span class="tag" onclick="toggleTag(this)">다정함</span>
                     <span class="tag" onclick="toggleTag(this)">용맹함</span>
@@ -185,28 +111,25 @@
                     <span class="tag" onclick="addCustomTag()">+ 기타</span>
                 </div>
 
-                <label style="display:block; margin-top:10px;">BIO</label>
-                <textarea id="bio" rows="3"></textarea>
+                <label style="margin-top:15px; display:block;">BIO</label>
+                <textarea id="bio" rows="3" placeholder="캐릭터 소개..."></textarea>
 
-                <div style="background:rgba(0,0,0,0.3); padding:10px; margin-top:10px; border-radius:5px;">
-                    <label>SECRET NOTE (Admin/Writer Only)</label>
-                    <textarea id="note-content" placeholder="비밀 쪽지 내용을 입력하세요..."></textarea>
-                    <label style="font-size:12px;"><input type="checkbox" id="is-secret" style="width:auto;"> 비밀로 설정</label>
+                <div style="border:1px solid #5d4037; padding:10px; margin-top:10px; border-radius:5px;">
+                    <label style="font-size:12px; color:var(--gold);">SECRET NOTE</label>
+                    <textarea id="note-content" placeholder="비밀 메모..."></textarea>
+                    <label style="font-size:11px;"><input type="checkbox" id="is-secret" style="width:auto;"> 비밀로 설정</label>
                 </div>
 
-                <button class="btn-game" style="width:100%; margin-top:15px;" id="save-btn" onclick="saveCharacter()">저장하기 (NEW SLOT)</button>
-                <button class="btn-game" style="width:100%; margin-top:5px; font-size:12px; opacity:0.7;" onclick="resetForm()">입력창 초기화</button>
+                <button class="btn-game" style="margin-top:20px;" onclick="saveCharacter()">저장하기 (NEW SLOT)</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        // 파이어베이스 설정
         const firebaseConfig = {
             apiKey: "AIzaSyB9zSYPDBJRt2oTIcbEa8kxZplCvSPazUU",
             authDomain: "prof-f0cd2.firebaseapp.com",
@@ -217,184 +140,115 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let currentUserData = null;
-        let selectedGender = "미정";
-        let currentEditId = null; // 수정 중인 문서 ID
+        let selectedGender = "";
+        let selectedFile = null;
 
-        window.showScreen = (id) => {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        };
-
-        // 로그인/가입 로직
-        window.handleSignup = async () => {
-            const e = document.getElementById('signup-email').value;
-            const p = document.getElementById('signup-pw').value;
-            try {
-                const res = await createUserWithEmailAndPassword(auth, e, p);
-                await setDoc(doc(db, "users", res.user.uid), { role: 'user', email: e });
-                alert("영웅의 탄생을 축하합니다!");
-                showScreen('gender-screen');
-            } catch(err) { alert(err.message); }
-        };
-
-        window.handleLogin = async () => {
-            const e = document.getElementById('login-email').value;
-            const p = document.getElementById('login-pw').value;
-            try {
-                const res = await signInWithEmailAndPassword(auth, e, p);
-                const userDoc = await getDoc(doc(db, "users", res.user.uid));
-                currentUserData = userDoc.data();
-                showScreen('gender-screen');
-                loadAllCharacters();
-            } catch(err) { alert("입장 실패: 정보를 확인하세요."); }
-        };
-
-        window.selectGender = (g) => { selectedGender = g; showScreen('main-screen'); };
-
-        // 특성 로직
-        window.toggleTag = (el) => el.classList.toggle('active');
-        window.addCustomTag = () => {
-            const t = prompt("새로운 특성:");
-            if(t) {
-                const s = document.createElement('span');
-                s.className = 'tag active'; s.innerText = t;
-                s.onclick = () => toggleTag(s);
-                document.getElementById('trait-container').insertBefore(s, document.getElementById('trait-container').lastChild);
-            }
+        // 화면 전환 함수
+        window.selectGender = (g) => {
+            selectedGender = g;
+            document.getElementById('gender-screen').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
+            loadArchives();
         };
 
         // 이미지 미리보기
-        let selectedFile = null;
         window.previewImage = (e) => {
             selectedFile = e.target.files[0];
             const reader = new FileReader();
             reader.onload = () => {
                 const img = document.getElementById('char-img-display');
-                img.src = reader.result; img.style.display = 'block';
+                img.src = reader.result;
+                img.style.display = 'block';
                 document.getElementById('upload-placeholder').style.display = 'none';
             };
             reader.readAsDataURL(selectedFile);
         };
 
-        // 캐릭터 저장 (새 슬롯 저장)
+        // 특성 태그 관리
+        window.toggleTag = (el) => el.classList.toggle('active');
+        window.addCustomTag = () => {
+            const val = prompt("추가할 특성:");
+            if(val) {
+                const span = document.createElement('span');
+                span.className = 'tag active'; span.innerText = val;
+                span.onclick = () => toggleTag(span);
+                document.getElementById('trait-container').insertBefore(span, document.getElementById('trait-container').lastChild);
+            }
+        };
+
+        // 캐릭터 저장 (핵심 수정 부분)
         window.saveCharacter = async () => {
-            const user = auth.currentUser;
-            if(!user) return;
-
             const name = document.getElementById('nickname').value;
-            if(!name) return alert("닉네임을 입력하세요!");
+            if(!name) return alert("닉네임을 입력해주세요!");
 
-            let url = document.getElementById('char-img-display').src;
-            if(selectedFile) {
-                const sRef = ref(storage, `chars/${Date.now()}`);
-                await uploadBytes(sRef, selectedFile);
-                url = await getDownloadURL(sRef);
+            try {
+                let imgUrl = "https://via.placeholder.com/400"; // 기본 이미지
+
+                // 이미지 업로드
+                if(selectedFile) {
+                    const storageRef = ref(storage, `chars/${Date.now()}_${selectedFile.name}`);
+                    const uploadRes = await uploadBytes(storageRef, selectedFile);
+                    imgUrl = await getDownloadURL(uploadRes.ref);
+                }
+
+                const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
+
+                // Firestore 저장
+                await addDoc(collection(db, "characters"), {
+                    nickname: name,
+                    gender: selectedGender,
+                    race: document.getElementById('race').value,
+                    level: Number(document.getElementById('lv-val').value),
+                    traits: traits,
+                    bio: document.getElementById('bio').value,
+                    note: document.getElementById('note-content').value,
+                    isSecret: document.getElementById('is-secret').checked,
+                    imageUrl: imgUrl,
+                    createdAt: new Date()
+                });
+
+                alert("성공적으로 저장되었습니다!");
+                location.reload(); // 저장 후 폼 초기화 및 새로고침
+            } catch (err) {
+                console.error(err);
+                alert("저장 실패: 파이어베이스 권한 설정을 확인하세요.\n오류내용: " + err.message);
             }
-
-            const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
-            const data = {
-                uid: user.uid,
-                nickname: name,
-                gender: selectedGender,
-                race: document.getElementById('race').value,
-                level: document.getElementById('lv-val').value,
-                traits: traits,
-                bio: document.getElementById('bio').value,
-                note: document.getElementById('note-content').value,
-                isSecret: document.getElementById('is-secret').checked,
-                imageUrl: url,
-                createdAt: new Date()
-            };
-
-            if(currentEditId) {
-                await updateDoc(doc(db, "characters", currentEditId), data);
-                alert("모험의 기록이 수정되었습니다.");
-            } else {
-                await addDoc(collection(db, "characters"), data);
-                alert("새로운 영웅이 아카이브에 기록되었습니다!");
-            }
-            resetForm();
         };
 
-        window.resetForm = () => {
-            currentEditId = null;
-            document.getElementById('form-title').innerText = "NEW CHARACTER";
-            document.getElementById('nickname').value = "";
-            document.getElementById('lv-val').value = 1;
-            document.getElementById('bio').value = "";
-            document.getElementById('note-content').value = "";
-            document.getElementById('is-secret').checked = false;
-            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
-            document.getElementById('char-img-display').style.display = 'none';
-            document.getElementById('upload-placeholder').style.display = 'block';
-            document.getElementById('action-buttons').style.display = 'none';
-            selectedFile = null;
-        };
-
-        // 모든 캐릭터 불러오기 및 상세보기
-        function loadAllCharacters() {
+        // 아카이브 목록 불러오기
+        function loadArchives() {
             const q = query(collection(db, "characters"), orderBy("createdAt", "desc"));
-            onSnapshot(q, (snap) => {
+            onSnapshot(q, (snapshot) => {
                 const list = document.getElementById('recent-users-list');
                 list.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
                     const card = document.createElement('div');
                     card.className = "user-mini-card";
-                    card.innerHTML = `<img src="${data.imageUrl}" width="40" height="40" style="border-radius:50%; margin-right:10px;">
-                                      <div><b>${data.nickname}</b><br><small>Lv.${data.level} ${data.race}</small></div>`;
-                    card.onclick = () => viewCharacter(d.id, data);
+                    card.innerHTML = `
+                        <img src="${data.imageUrl}" width="50" height="50" style="border:1px solid var(--gold); margin-right:10px; object-fit:cover;">
+                        <div>
+                            <div style="color:var(--gold); font-weight:bold;">${data.nickname}</div>
+                            <div style="font-size:12px;">Lv.${data.level} ${data.race} / ${data.gender}</div>
+                        </div>
+                    `;
+                    card.onclick = () => displayDetail(data);
                     list.appendChild(card);
                 });
             });
         }
 
-        function viewCharacter(id, data) {
-            const user = auth.currentUser;
+        function displayDetail(data) {
             const img = document.getElementById('char-img-display');
-            img.src = data.imageUrl; img.style.display = 'block';
+            img.src = data.imageUrl;
+            img.style.display = 'block';
             document.getElementById('upload-placeholder').style.display = 'none';
-
-            // 쪽지 노출 로직 (비밀인 경우 작성자/Admin만)
-            let noteHtml = "";
-            if(!data.isSecret || (user && (user.uid === data.uid || currentUserData.role === 'admin'))) {
-                noteHtml = `<div class="note-box ${data.isSecret ? 'secret-note' : ''}">
-                                <b>📝 ${data.isSecret ? '[SECRET NOTE]' : '[NOTE]'}</b><br>${data.note || '내용 없음'}
-                            </div>`;
-            }
-
-            // 오른쪽 폼에 데이터 채우기 (수정 준비)
-            document.getElementById('nickname').value = data.nickname;
-            document.getElementById('lv-val').value = data.level;
-            document.getElementById('race').value = data.race;
-            document.getElementById('bio').value = data.bio;
-            document.getElementById('note-content').value = data.note;
-            document.getElementById('is-secret').checked = data.isSecret;
-
-            // 버튼 권한 제어
-            const actionBox = document.getElementById('action-buttons');
-            const editBtn = document.getElementById('edit-btn');
-            const delBtn = document.getElementById('delete-btn');
             
-            actionBox.style.display = 'flex';
-            
-            // 수정은 본인만
-            editBtn.style.display = (user && user.uid === data.uid) ? 'block' : 'none';
-            editBtn.onclick = () => { currentEditId = id; document.getElementById('form-title').innerText = "EDIT CHARACTER"; alert("수정 모드 활성화"); };
-
-            // 삭제는 본인 또는 Admin
-            delBtn.style.display = (user && (user.uid === data.uid || currentUserData.role === 'admin')) ? 'block' : 'none';
-            delBtn.onclick = async () => {
-                if(confirm("이 영웅의 기록을 영구히 말소합니까?")) {
-                    await deleteDoc(doc(db, "characters", id));
-                    resetForm();
-                }
-            };
+            // 상세 정보 알림 (또는 UI에 표시 가능)
+            alert(`[${data.nickname}] 캐릭터를 불러왔습니다.\n특성: ${data.traits.join(', ')}\n소개: ${data.bio}`);
         }
     </script>
 </body>
