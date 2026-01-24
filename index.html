@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Gothic Abyss Archive - Luxury UI</title>
+    <title>Gothic Abyss Archive - Complete UI</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,23 +12,13 @@
             --g-scroll-bg: #121212;
         }
 
-        /* ⭐️ 빤짝빤짝 고딕풍 커스텀 스크롤바 (전체 적용) */
-        ::-webkit-scrollbar {
-            width: 8px; /* 너무 굵지 않게 */
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--g-scroll-bg);
-            border-left: 1px solid #222;
-        }
+        /* ⭐️ 황금빛 고딕 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--g-scroll-bg); }
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, #8a6d3b, var(--g-gold), #8a6d3b);
-            border: 1px solid #000;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); /* 은은한 황금빛 광채 */
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, var(--g-gold), #fff, var(--g-gold)); /* 호버 시 더 밝게 빛남 */
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.8);
+            border-radius: 10px; border: 1px solid #000;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
         }
 
         body {
@@ -39,7 +29,6 @@
             color: var(--g-gold); overflow: hidden; position: relative;
         }
 
-        /* ✨ 파티클 배경 */
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 
         .gothic-panel {
@@ -47,70 +36,87 @@
             border: 10px solid transparent;
             border-image: url('https://www.transparentpng.com/download/gold-frame/vCqE0E-gold-frame-free-download.png') 30 stretch;
             box-shadow: 0 0 50px rgba(0, 0, 0, 1);
-            padding: 20px; display: flex; flex-direction: column; position: relative;
-            height: 100%; box-sizing: border-box; z-index: 10;
+            padding: 25px; display: flex; flex-direction: column; position: relative;
+            height: auto; max-height: 95vh; box-sizing: border-box; z-index: 10;
         }
+
+        /* ⭐️ 로그인/회원가입 화면 전용 스타일 */
+        .auth-box { width: 350px; text-align: center; }
+        .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+        
+        /* 👁️ 비밀번호 보기 버튼 */
+        .pw-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: var(--g-gold); font-size: 0.8rem; opacity: 0.6;
+            transition: 0.3s; user-select: none;
+        }
+        .pw-toggle:hover { opacity: 1; text-shadow: 0 0 5px var(--g-gold); }
 
         .app-grid { display: none; width: 98vw; height: 92vh; grid-template-columns: 320px 1fr 420px; gap: 20px; align-items: start; }
         .active { display: grid; }
 
-        /* 중앙 스테이지 */
         .summon-stage {
             display: flex; flex-direction: column; align-items: center;
-            width: 100%; height: 100%; overflow-y: auto; padding: 40px 0; z-index: 10;
+            width: 100%; height: 100%; overflow-y: auto; padding: 40px 0;
         }
+
         #main-view-img { 
-            width: auto; max-width: 80%; height: auto; 
-            filter: drop-shadow(0 0 25px var(--g-red)) drop-shadow(0 0 60px rgba(0,0,0,0.9));
+            width: auto; max-width: 80%; filter: drop-shadow(0 0 25px var(--g-red));
             animation: floatSoul 5s ease-in-out infinite; margin-bottom: 40px;
         }
         @keyframes floatSoul { 0%, 100% { transform: translateY(0) rotate(-0.5deg); } 50% { transform: translateY(-20px) rotate(0.5deg); } }
 
-        /* 버튼 및 입력창 */
         .g-btn {
-            background: linear-gradient(135deg, #300, #000); color: var(--g-gold); border: 1px solid var(--g-gold);
+            background: linear-gradient(135deg, #400, #000); color: var(--g-gold); border: 1px solid var(--g-gold);
             padding: 12px; font-family: 'Cinzel Decorative'; cursor: pointer;
-            clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%); margin-bottom: 5px;
-            transition: 0.3s;
+            clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+            transition: 0.3s; width: 100%; margin-bottom: 8px;
         }
         .g-btn:hover { background: var(--g-gold); color: #000; box-shadow: 0 0 15px var(--g-gold); }
-        
-        input, textarea, select { 
-            background: #111; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
-            font-family: 'Noto Serif KR', serif;
-        }
-        
-        /* 특성 칩 */
-        .trait-chip { 
-            padding: 4px 10px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 2px; 
-            display: inline-block; transition: 0.3s; background: rgba(0,0,0,0.5);
-        }
-        .trait-chip.selected { background: #800; color: #fff; border-color: #f00; box-shadow: 0 0 8px #800; }
+        .g-btn.secondary { background: none; border-color: #555; color: #888; font-size: 0.7rem; margin-top: 5px; clip-path: none; border-radius: 5px; }
 
-        .hero-card { 
-            background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 10px; margin-bottom: 10px; 
-            cursor: pointer; display: flex; gap: 15px; align-items: center; transition: 0.2s;
+        input, textarea, select { 
+            background: #111; border: 1px solid #444; color: #fff; padding: 12px; width: 100%; box-sizing: border-box;
+            font-family: 'Noto Serif KR', serif; outline: none;
         }
-        .hero-card:hover { border-color: var(--g-gold); background: rgba(100,0,0,0.1); }
-        .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
-        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
+        input:focus { border-color: var(--g-gold); }
+
+        .trait-chip { 
+            padding: 5px 12px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 3px; 
+            display: inline-block; background: rgba(0,0,0,0.5);
+        }
+        .trait-chip.selected { background: #800; color: #fff; box-shadow: 0 0 10px #800; }
+
+        .hero-card { background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 10px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .hero-card img { width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--g-gold); }
+        .logout-btn { position: absolute; top: 10px; right: 15px; color: #800; cursor: pointer; font-size: 0.7rem; border: 1px solid #800; padding: 2px 5px; }
     </style>
 </head>
 <body>
 
     <canvas id="particle-canvas"></canvas>
 
-    <div id="auth-screen" class="gothic-panel" style="width: 320px; height: auto;">
-        <h2 style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
-        <input type="email" id="email" placeholder="SOUL ID">
-        <input type="password" id="pw" placeholder="PASSWORD">
-        <button class="g-btn" id="login-trigger" style="width: 100%;">ASCEND</button>
+    <div id="auth-screen" class="gothic-panel auth-box">
+        <h2 style="font-family: 'Cinzel Decorative'; letter-spacing: 4px; margin-bottom: 30px;">ABYSS GATE</h2>
+        
+        <div class="input-wrapper">
+            <input type="email" id="email" placeholder="SOUL IDENTIFIER (Email)">
+        </div>
+        
+        <div class="input-wrapper">
+            <input type="password" id="pw" placeholder="SECRET KEY (Password)">
+            <span class="pw-toggle" onclick="togglePasswordVisibility('pw')">👁️</span>
+        </div>
+
+        <button class="g-btn" id="login-trigger">ASCEND (Login)</button>
+        <button class="g-btn secondary" id="signup-trigger">FORGE NEW SOUL (Sign Up)</button>
+        <p id="auth-msg" style="font-size: 0.7rem; color: #800; margin-top: 10px;"></p>
     </div>
 
     <div id="main-app" class="app-grid">
         <div class="gothic-panel">
-            <button class="logout-btn" id="logout-trigger">LOGOUT</button>
-            <h3 style="font-family: 'Cinzel Decorative';">ARCHIVES</h3>
+            <span class="logout-btn" id="logout-trigger">RELEASE SOUL</span>
+            <h3 style="font-family: 'Cinzel Decorative'; margin-top: 20px;">ARCHIVES</h3>
             <div id="hero-list" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
             <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="location.reload()">NEW RECORD</button>
         </div>
@@ -118,8 +124,8 @@
         <div class="summon-stage">
             <img id="main-view-img" src="" style="display: none;">
             <div id="upload-zone" style="text-align: center; margin-top: 200px;">
-                <p style="letter-spacing: 5px; font-size: 1.5rem; opacity: 0.4;">VOID</p>
-                <button class="g-btn" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
+                <p style="letter-spacing: 5px; opacity: 0.4;">VOID</p>
+                <button class="g-btn" style="width: 200px;" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
             </div>
             <div class="re-summon-btn" id="re-summon-btn" style="display:none; color:var(--g-gold); cursor:pointer; font-size:0.8rem; margin-bottom: 20px;" onclick="document.getElementById('file-in').click()">[ RE-SUMMON ]</div>
             <input type="file" id="file-in" hidden onchange="previewHero(event)" accept="image/*">
@@ -129,7 +135,6 @@
             <h3 style="font-family: 'Cinzel Decorative';">SOUL CONTRACT</h3>
             <div style="overflow-y: auto; flex: 1; padding-right: 10px;">
                 <label>NAME</label><input type="text" id="nickname">
-                
                 <div style="display: flex; gap: 10px;">
                     <div style="flex:1;"><label>GENDER</label>
                         <select id="gender"><option>MALE</option><option>FEMALE</option></select>
@@ -138,9 +143,7 @@
                         <select id="race"><option>HUMAN</option><option>ELF</option><option>DWARF</option></select>
                     </div>
                 </div>
-
                 <label>LEVEL</label><input type="number" id="level" value="1">
-
                 <label>TRAITS</label>
                 <div id="trait-box" style="margin-bottom: 10px;">
                     <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
@@ -148,12 +151,11 @@
                     <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
                 </div>
-                
                 <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
                 <label>FORBIDDEN NOTE</label><textarea id="note" rows="2"></textarea>
             </div>
             <div id="btn-group" style="margin-top: 15px;">
-                <button id="save-btn" class="g-btn" style="width: 100%;" onclick="saveData()">SEAL CONTRACT</button>
+                <button id="save-btn" class="g-btn" onclick="saveData()">SEAL CONTRACT</button>
                 <div id="edit-group" style="display: none; gap: 10px;">
                     <button class="g-btn" style="flex: 1; background: #004d40;" onclick="updateData()">UPDATE</button>
                     <button class="g-btn" style="flex: 1; background: #4d0000;" onclick="deleteData()">ERASE</button>
@@ -163,9 +165,8 @@
     </div>
 
     <script type="module">
-        // Firebase 및 파티클 로직 (이전과 동일, 안정성 유지)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -183,7 +184,45 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // --- 파티클 시스템 ---
+        // --- 👁️ 비밀번호 토글 함수 ---
+        window.togglePasswordVisibility = (id) => {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        };
+
+        // --- 🔐 인증 로직 복구 ---
+        document.getElementById('login-trigger').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('pw').value;
+            try { await signInWithEmailAndPassword(auth, email, pw); } 
+            catch(e) { document.getElementById('auth-msg').innerText = "IDENTIFICATION FAILED."; }
+        };
+
+        document.getElementById('signup-trigger').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('pw').value;
+            if(pw.length < 6) return alert("Secret Key must be at least 6 characters.");
+            try { 
+                await createUserWithEmailAndPassword(auth, email, pw);
+                alert("SOUL FORGED. Welcome to the Abyss.");
+            } catch(e) { document.getElementById('auth-msg').innerText = "FORGING FAILED: " + e.message; }
+        };
+
+        document.getElementById('logout-trigger').onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                currentUser = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('active');
+                loadList();
+            } else {
+                document.getElementById('auth-screen').style.display = 'block';
+                document.getElementById('main-app').classList.remove('active');
+            }
+        });
+
+        // --- 파티클 & 데이터 로직 (생략 없이 유지) ---
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -205,19 +244,7 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // --- 데이터 로직 ---
         let currentUser = null, selectedFile = null, currentDocId = null;
-
-        document.getElementById('login-trigger').onclick = async () => {
-            const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ID/PW를 확인하세요."); }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            if(user) { currentUser = user; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').classList.add('active'); loadList(); }
-            else { document.getElementById('auth-screen').style.display = 'block'; document.getElementById('main-app').classList.remove('active'); }
-        });
-
         window.toggleTrait = (el) => el.classList.toggle('selected');
         window.previewHero = (e) => {
             selectedFile = e.target.files[0]; if (!selectedFile) return;
@@ -228,7 +255,7 @@
         };
 
         window.saveData = async () => {
-            if(!selectedFile) return alert("이미지를 먼저 소환하세요.");
+            if(!selectedFile) return alert("Summon an image first.");
             const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
             const sRef = ref(storage, `souls/${Date.now()}`);
             try {
@@ -243,7 +270,7 @@
                     imageUrl: url, author: currentUser.uid, time: new Date()
                 });
                 location.reload();
-            } catch(e) { alert("저장 실패"); }
+            } catch(e) { alert("Contract Failed."); }
         };
 
         function loadList() {
@@ -271,15 +298,20 @@
             document.getElementById('upload-zone').style.display = 'none';
             document.getElementById('re-summon-btn').style.display = 'block';
 
-            const chips = document.querySelectorAll('.trait-chip');
-            chips.forEach(chip => {
+            document.querySelectorAll('.trait-chip').forEach(chip => {
                 if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
                 else chip.classList.remove('selected');
             });
 
             const isOwner = currentUser && (currentUser.uid === data.author);
-            document.getElementById('save-btn').style.display = 'none';
-            document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
+            document.getElementById('save-btn').style.display = isOwner ? 'none' : 'none'; // logic fixed
+            if (isOwner) {
+                document.getElementById('save-btn').style.display = 'none';
+                document.getElementById('edit-group').style.display = 'flex';
+            } else {
+                document.getElementById('save-btn').style.display = 'none';
+                document.getElementById('edit-group').style.display = 'none';
+            }
         }
 
         window.updateData = async () => {
@@ -291,11 +323,10 @@
                 level: document.getElementById('level').value,
                 traits: traits, bio: document.getElementById('bio').value, note: document.getElementById('note').value
             });
-            alert("수정 완료"); location.reload();
+            alert("Archive Updated."); location.reload();
         };
 
-        window.deleteData = async () => { if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
-        document.getElementById('logout-trigger').onclick = () => signOut(auth);
+        window.deleteData = async () => { if(confirm("Erase this soul forever?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
     </script>
 </body>
 </html>
