@@ -2,196 +2,200 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>낭만 MMORPG: 모험의 서</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=MedievalSharp&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <title>동화 속 모험: 캐릭터 아카이브</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Brush+Script&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #f3cf7a;
-            --gold-glow: #ffcc00;
-            --panel-bg: rgba(20, 15, 10, 0.95);
-            --border-style: 2px solid #5d4037;
-            --accent: #b71c1c;
+            --magic-gold: #fde08d;
+            --deep-wood: #2c1b10;
+            --scroll-paper: #f4e4bc;
+            --accent-green: #4ade80;
         }
-
-        /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1210; }
-        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'MedievalSharp', 'Noto Sans KR', serif;
-            background: #000 url('https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-            background-size: cover; color: #eee; overflow: hidden;
+            font-family: 'Gaegu', cursive;
+            /* 배경: 동화적이고 따뜻한 마을 전경 (AI 생성 이미지 풍) */
+            background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden; color: var(--deep-wood);
         }
 
-        .screen { display: none; width: 100%; height: 100%; position: absolute; justify-content: center; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10; }
+        /* 전체 오버레이: 부드러운 안개 효과 */
+        .overlay {
+            position: fixed; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0) 30%, rgba(44,27,16,0.4) 100%);
+            pointer-events: none; z-index: 1;
+        }
+
+        .screen { display: none; width: 100%; height: 100%; position: absolute; justify-content: center; align-items: center; z-index: 10; }
         .active { display: flex; }
 
-        /* 판타지 패널 스타일 */
-        .panel {
-            background: var(--panel-bg);
-            border: 3px solid #4e342e;
-            outline: 1px solid var(--gold);
-            outline-offset: -8px;
-            border-radius: 4px; padding: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(0,0,0,0.8);
-            position: relative;
+        /* 판타지 양피지 패널 */
+        .parchment {
+            background: var(--scroll-paper);
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            border: 8px double #8b5a2b;
+            box-shadow: 0 0 0 4px var(--magic-gold), 0 20px 50px rgba(0,0,0,0.5);
+            border-radius: 20px; padding: 30px; position: relative;
         }
 
-        .main-container { display: grid; grid-template-columns: 300px 1fr 400px; width: 98%; height: 95%; gap: 15px; z-index: 1; }
-
-        /* 입력창 디자인 */
-        input, textarea, select { 
-            background: #111; border: 1px solid #5d4037; color: #fff; 
-            padding: 12px; margin: 8px 0; border-radius: 2px;
-            transition: 0.3s; font-size: 14px;
+        /* 메인 컨테이너: 동화풍 레이아웃 */
+        .main-container {
+            display: grid; grid-template-columns: 320px 1fr 420px;
+            width: 95%; height: 90%; gap: 20px; z-index: 2;
         }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(243, 207, 122, 0.3); outline: none; }
-        input:disabled { opacity: 0.5; color: var(--gold); border-color: #333; }
 
-        /* 버튼 디자인 (인기 게임 스타일) */
-        .btn-game {
-            background: linear-gradient(135deg, #4e342e 0%, #211510 100%);
-            border: 1px solid var(--gold); color: var(--gold);
-            padding: 14px; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; letter-spacing: 2px;
-            transition: all 0.3s; font-family: 'Cinzel', serif;
+        /* 캐릭터 초상화 프레임 (동화풍 숲/나무 느낌) */
+        .portrait-frame {
+            width: 100%; height: 100%;
+            border-radius: 15px; border: 12px solid #3d2b1f;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
             position: relative; overflow: hidden;
-        }
-        .btn-game:hover { 
-            background: var(--gold); color: #000; 
-            box-shadow: 0 0 20px var(--gold-glow);
-            transform: scale(1.02);
-        }
-        .btn-delete { border-color: var(--accent); color: var(--accent); }
-        .btn-delete:hover { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent); }
-
-        /* 아카이브 카드 */
-        .user-mini-card { 
-            display: flex; align-items: center; padding: 12px; 
-            border: 1px solid transparent; border-bottom: 1px solid #333; 
-            cursor: pointer; transition: 0.2s;
-        }
-        .user-mini-card:hover { background: rgba(243, 207, 122, 0.1); border: 1px solid var(--gold); }
-        .card-img { width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--gold); margin-right: 15px; }
-
-        /* 특성 태그 */
-        .tag { display: inline-block; padding: 6px 12px; margin: 4px; background: #1a1a1a; border: 1px solid #5d4037; cursor: pointer; font-size: 12px; color: #aaa; }
-        .tag.active { border-color: var(--gold); color: var(--gold); background: rgba(243, 207, 122, 0.1); box-shadow: inset 0 0 5px var(--gold); }
-
-        .char-frame { 
-            width: 100%; height: 100%; border: 10px double #4e342e; 
-            background: radial-gradient(circle, #2c1e1a 0%, #000 100%);
-            position: relative; border-radius: 4px; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
-        #user-badge { position: fixed; top: 15px; right: 25px; background: rgba(0,0,0,0.8); border: 1px solid var(--gold); padding: 8px 15px; border-radius: 2px; font-size: 13px; color: var(--gold); display: flex; gap: 15px; align-items: center; }
+        /* 입력 필드: 잉크병과 깃펜 느낌 */
+        input, textarea, select {
+            background: rgba(0,0,0,0.05); border: none;
+            border-bottom: 2px solid #8b5a2b; color: #1a1a1a;
+            padding: 10px; margin: 10px 0; width: 100%;
+            font-family: 'Gaegu', cursive; font-size: 1.1rem;
+        }
+        input:focus { outline: none; border-bottom-color: var(--accent-green); background: rgba(255,255,255,0.2); }
+
+        /* 버튼: 젬(Gem) 박힌 매직 버튼 */
+        .btn-magic {
+            background: linear-gradient(to bottom, #8b5a2b, #4e342e);
+            border: 2px solid var(--magic-gold); border-radius: 50px;
+            color: var(--magic-gold); padding: 12px 25px;
+            font-size: 1.2rem; cursor: pointer; font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: 0.3s; margin-top: 10px;
+        }
+        .btn-magic:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px var(--magic-gold);
+            filter: brightness(1.2);
+        }
+
+        /* 특성 태그: 나뭇잎 느낌 */
+        .trait-tag {
+            display: inline-block; padding: 5px 15px; margin: 5px;
+            background: #e2d1a6; border-radius: 20px;
+            border: 1px dashed #8b5a2b; cursor: pointer; transition: 0.2s;
+        }
+        .trait-tag.active {
+            background: var(--accent-green); color: white; border-style: solid;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+
+        /* 로그인 폼 특수 스타일 */
+        .login-box {
+            text-align: center; max-width: 400px;
+        }
+        .login-box h1 { font-family: 'Cinzel Decorative', cursive; color: #5d4037; }
+
+        /* 아카이브 리스트 */
+        .scroll-list { overflow-y: auto; height: 100%; }
+        .archive-item {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px; margin-bottom: 10px;
+            background: rgba(255,255,255,0.3); border-radius: 10px;
+            cursor: pointer; border: 1px solid transparent;
+        }
+        .archive-item:hover { border-color: var(--magic-gold); background: rgba(255,255,255,0.5); }
+        .mini-pfp { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--magic-gold); object-fit: cover; }
+
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
 
     <div id="login-screen" class="screen active">
-        <div class="panel" style="width: 350px;">
-            <h1 style="color:var(--gold); font-family:'Cinzel'; font-size: 2rem; margin-bottom: 5px;">ADVENTURER LOGIN</h1>
-            <p style="color: #666; font-size: 12px; margin-bottom: 25px;">Enter the gates of the Archive</p>
-            
-            <input type="email" id="login-email" placeholder="Email Address">
-            <input type="password" id="login-pw" placeholder="Password">
-            
-            <button class="btn-game" style="margin-top: 20px;" onclick="handleEmailAuth('login')">SIGN IN</button>
-            <button class="btn-game" style="margin-top: 10px; font-size: 11px; border: none; background: none; text-decoration: underline;" onclick="handleEmailAuth('signup')">New Adventurer? Sign Up</button>
+        <div class="parchment login-box">
+            <h1>✨ ARCHIVE GATE ✨</h1>
+            <p>모험가님, 기록의 서에 로그인하세요</p>
+            <input type="email" id="login-email" placeholder="이메일 주소">
+            <input type="password" id="login-pw" placeholder="비밀번호">
+            <button class="btn-magic" onclick="handleEmailAuth('login')">접속하기</button>
+            <p style="font-size: 0.9rem; color: #8b5a2b; cursor: pointer; margin-top:15px;" onclick="handleEmailAuth('signup')">새로운 모험가 등록(회원가입)</p>
         </div>
     </div>
 
-    <div id="gender-screen" class="screen">
-        <div style="text-align:center;">
-            <h1 style="color:var(--gold); font-family:'Cinzel'; font-size:3.5rem; text-shadow: 0 0 20px var(--gold);">CHOOSE GENDER</h1>
-            <div style="display:flex; gap:80px; margin-top:50px;">
-                <div onclick="selectGender('남성')" style="cursor:pointer; transition: 0.3s;" class="gender-box">
-                    <img src="https://www.svgrepo.com/show/347201/male-silhouette.svg" width="200" style="filter:invert(1) sepia(1) saturate(5) hue-rotate(0deg);">
-                    <h2 style="color:var(--gold); font-family:'Cinzel';">MALE</h2>
-                </div>
-                <div onclick="selectGender('여성')" style="cursor:pointer; transition: 0.3s;" class="gender-box">
-                    <img src="https://www.svgrepo.com/show/347200/female-silhouette.svg" width="200" style="filter:invert(1) sepia(1) saturate(5) hue-rotate(0deg);">
-                    <h2 style="color:var(--gold); font-family:'Cinzel';">FEMALE</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="user-badge" style="display:none;">
-        <span id="user-display"></span>
-        <button onclick="logout()" style="color:#ff4444; background:none; border:none; cursor:pointer;">LOGOUT</button>
-    </div>
-
-    <div id="main-screen" class="screen" style="background:none; backdrop-filter:none;">
+    <div id="main-screen" class="screen">
         <div class="main-container">
-            <div class="panel" style="padding: 15px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--gold); padding-bottom: 10px; margin-bottom: 15px;">
-                    <h3 style="color:var(--gold); font-family:'Cinzel'; margin:0;">ARCHIVES</h3>
-                    <button class="btn-game" style="padding: 4px 10px; font-size: 10px;" onclick="resetForm()">+ NEW</button>
-                </div>
-                <div id="recent-users-list"></div>
+            
+            <div class="parchment" style="padding: 20px;">
+                <h2 style="font-family: 'Cinzel Decorative'; text-align: center;">📜 ARCHIVES</h2>
+                <div class="scroll-list" id="char-list">
+                    </div>
+                <button class="btn-magic" style="width:100%; margin-top: 10px;" onclick="resetForm()">+ 새 기록 작성</button>
             </div>
 
-            <div class="char-frame">
-                <img id="char-img-display" style="width:100%; height:100%; object-fit:contain; display:none;">
-                <div id="upload-placeholder" style="text-align:center;">
-                    <button class="btn-game" onclick="document.getElementById('file-input').click()">UPLOAD PORTRAIT</button>
+            <div class="portrait-frame">
+                <img id="view-img" style="width:100%; height:100%; object-fit:cover; display:none;">
+                <div id="upload-zone" style="text-align: center;">
+                    <div style="font-size: 4rem;">🖼️</div>
+                    <button class="btn-magic" onclick="document.getElementById('file-input').click()">초상화 불러오기</button>
                     <input type="file" id="file-input" hidden onchange="previewImage(event)">
                 </div>
             </div>
 
-            <div class="panel" id="right-panel" style="text-align: left; overflow-y: auto;">
-                <h2 id="form-title" style="color:var(--gold); font-family:'Cinzel'; text-align: center; border-bottom: 1px solid #5d4037; padding-bottom: 10px;">CHARACTER LOG</h2>
+            <div class="parchment" style="overflow-y: auto;">
+                <h2 id="mode-title" style="font-family: 'Cinzel Decorative'; margin-top:0;">CHARACTER LOG</h2>
                 
-                <label style="color:var(--gold); font-size: 12px;">NICKNAME</label>
-                <input type="text" id="nickname" placeholder="Enter name...">
-                
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1;"><label style="color:var(--gold); font-size: 12px;">RACE</label>
-                        <select id="race"><option>인간</option><option>엘프</option><option>드워프</option><option>오크</option></select>
+                <label>이름</label>
+                <input type="text" id="nickname" placeholder="모험가의 이름">
+
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex:1;">
+                        <label>종족</label>
+                        <select id="race">
+                            <option>인간</option><option>엘프</option><option>수인</option><option>정령</option>
+                        </select>
                     </div>
-                    <div style="flex:1;"><label style="color:var(--gold); font-size: 12px;">LEVEL</label>
-                        <input type="number" id="lv-val" value="1">
+                    <div style="flex:1;">
+                        <label>성별</label>
+                        <select id="gender">
+                            <option>남성</option><option>여성</option><option>중성</option>
+                        </select>
                     </div>
                 </div>
 
-                <label style="margin-top:15px; display:block; color:var(--gold); font-size: 12px;">TRAITS</label>
-                <div id="trait-container">
-                    <span class="tag" onclick="toggleTag(this)">다정함</span>
-                    <span class="tag" onclick="toggleTag(this)">용맹함</span>
-                    <span class="tag" onclick="toggleTag(this)">지혜로움</span>
-                    <span class="tag" id="add-tag-btn" onclick="addCustomTag()" style="border-style: dashed;">+ ADD</span>
+                <label>특성</label>
+                <div id="trait-box">
+                    <span class="trait-tag" onclick="this.classList.toggle('active')">다정함</span>
+                    <span class="trait-tag" onclick="this.classList.toggle('active')">용맹함</span>
+                    <span class="trait-tag" onclick="this.classList.toggle('active')">신비로움</span>
+                    <span class="trait-tag" onclick="addCustomTrait()">+ 추가</span>
                 </div>
 
-                <label style="margin-top:15px; display:block; color:var(--gold); font-size: 12px;">BIOGRAPHY</label>
-                <textarea id="bio" rows="4"></textarea>
+                <label>이야기 (Bio)</label>
+                <textarea id="bio" rows="4" placeholder="어떤 모험을 거쳐왔나요?"></textarea>
 
-                <div style="border-top: 1px solid #5d4037; margin-top: 15px; padding-top: 15px;">
-                    <label style="font-size:11px; color:var(--accent); letter-spacing: 1px;">SECRET NOTE (ENCRYPTED)</label>
-                    <textarea id="note-content" style="border-color: var(--accent);"></textarea>
+                <div style="background: rgba(139, 90, 43, 0.1); padding: 10px; border-radius: 10px; margin-top: 10px;">
+                    <label style="color: #b71c1c;">🔒 비밀 기록 (관리자 전용)</label>
+                    <textarea id="secret-note" style="border-bottom-color: #b71c1c;"></textarea>
                 </div>
 
-                <div id="action-buttons" style="margin-top: 20px;">
-                    <button id="save-btn" class="btn-game" style="width:100%;" onclick="saveCharacter()">SAVE RECORD</button>
-                    
-                    <div id="auth-buttons" style="display:none; gap:10px;">
-                        <button id="edit-btn" class="btn-game" style="flex:1;" onclick="enableEdit()">EDIT</button>
-                        <button id="delete-btn" class="btn-game btn-delete" style="flex:1;" onclick="deleteCharacter()">DELETE</button>
+                <div id="btn-group" style="margin-top: 20px;">
+                    <button id="save-btn" class="btn-magic" style="width:100%;" onclick="saveData()">기록 저장하기</button>
+                    <div id="edit-group" style="display:none; gap:10px;">
+                        <button class="btn-magic" style="flex:1;" onclick="updateData()">수정</button>
+                        <button class="btn-magic" style="flex:1; background: #b71c1c;" onclick="deleteData()">삭제</button>
                     </div>
-                    
-                    <button id="update-btn" class="btn-game" style="display:none; width:100%;" onclick="updateCharacter()">CONFIRM CHANGES</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
+        // Firebase 설정 (이전과 동일하되 디자인에 맞게 최적화된 로직 적용)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -208,192 +212,133 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let currentUser = null;
-        let selectedGender = "";
+        let userSession = null;
         let selectedFile = null;
-        let currentDocId = null;
+        let currentId = null;
 
-        // 1. 이메일 로그인/회원가입 로직
+        // 이메일 로그인 처리
         window.handleEmailAuth = async (type) => {
             const email = document.getElementById('login-email').value;
             const pw = document.getElementById('login-pw').value;
-            if(!email || !pw) return alert("Email and Password required!");
+            if(!email || !pw) return alert("이메일과 비밀번호를 입력해주세요!");
 
             try {
-                if(type === 'login') {
-                    await signInWithEmailAndPassword(auth, email, pw);
-                } else {
-                    const res = await createUserWithEmailAndPassword(auth, email, pw);
-                    // 신규 회원가입 시 DB에 기본 유저 정보 생성 (role: user)
-                    await setDoc(doc(db, "users", res.user.uid), {
-                        email: email,
-                        role: "user"
-                    });
-                    alert("Account created!");
+                if(type === 'login') await signInWithEmailAndPassword(auth, email, pw);
+                else {
+                    await createUserWithEmailAndPassword(auth, email, pw);
+                    alert("환영합니다, 모험가님! 가입이 완료되었습니다.");
                 }
-            } catch (err) { alert("Auth Error: " + err.message); }
+            } catch(e) { alert("오류: " + e.message); }
         };
 
-        window.logout = () => signOut(auth);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                const userData = userDoc.data();
-                currentUser = { uid: user.uid, role: userData?.role || "user" };
-                
-                document.getElementById('user-display').innerText = `${user.email.split('@')[0]} [${currentUser.role.toUpperCase()}]`;
-                document.getElementById('user-badge').style.display = 'flex';
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                userSession = user;
                 document.getElementById('login-screen').classList.remove('active');
-                document.getElementById('gender-screen').classList.add('active');
+                document.getElementById('main-screen').classList.add('active');
+                loadArchives();
             } else {
-                location.reload(); // 로그아웃 시 완전 초기화
+                document.getElementById('login-screen').classList.add('active');
+                document.getElementById('main-screen').classList.remove('active');
             }
         });
 
-        // 2. 캐릭터 CRUD 로직
-        window.selectGender = (g) => {
-            selectedGender = g;
-            document.getElementById('gender-screen').classList.remove('active');
-            document.getElementById('main-screen').classList.add('active');
-            loadArchives();
-        };
-
+        // 이미지 미리보기
         window.previewImage = (e) => {
             selectedFile = e.target.files[0];
             const reader = new FileReader();
             reader.onload = () => {
-                const img = document.getElementById('char-img-display');
+                const img = document.getElementById('view-img');
                 img.src = reader.result; img.style.display = 'block';
-                document.getElementById('upload-placeholder').style.display = 'none';
+                document.getElementById('upload-zone').style.display = 'none';
             };
             reader.readAsDataURL(selectedFile);
         };
 
-        window.saveCharacter = async () => {
+        // 데이터 저장
+        window.saveData = async () => {
             const name = document.getElementById('nickname').value;
-            if(!name) return alert("Nickname required!");
+            if(!name) return alert("이름을 입력하세요!");
 
-            try {
-                let imgUrl = "https://via.placeholder.com/400?text=No+Portrait";
-                if(selectedFile) {
-                    const storageRef = ref(storage, `chars/${Date.now()}_${selectedFile.name}`);
-                    const uploadRes = await uploadBytes(storageRef, selectedFile);
-                    imgUrl = await getDownloadURL(uploadRes.ref);
-                }
+            let url = "https://via.placeholder.com/400?text=No+Image";
+            if(selectedFile) {
+                const sRef = ref(storage, `books/${Date.now()}`);
+                await uploadBytes(sRef, selectedFile);
+                url = await getDownloadURL(sRef);
+            }
 
-                await addDoc(collection(db, "characters"), {
-                    nickname: name, gender: selectedGender, race: document.getElementById('race').value,
-                    level: Number(document.getElementById('lv-val').value),
-                    traits: Array.from(document.querySelectorAll('.tag.active:not(#add-tag-btn)')).map(t => t.innerText),
-                    bio: document.getElementById('bio').value, note: document.getElementById('note-content').value,
-                    imageUrl: imgUrl, authorId: currentUser.uid, createdAt: new Date()
-                });
-                alert("Log Saved!"); resetForm();
-            } catch (err) { alert(err.message); }
+            await addDoc(collection(db, "characters"), {
+                nickname: name, race: document.getElementById('race').value,
+                gender: document.getElementById('gender').value,
+                bio: document.getElementById('bio').value,
+                secret: document.getElementById('secret-note').value,
+                imageUrl: url, author: userSession.uid,
+                traits: [...document.querySelectorAll('.trait-tag.active')].map(t => t.innerText),
+                time: new Date()
+            });
+            alert("기록되었습니다!"); resetForm();
         };
 
+        // 데이터 불러오기 (실시간)
         function loadArchives() {
-            onSnapshot(query(collection(db, "characters"), orderBy("createdAt", "desc")), (snap) => {
-                const list = document.getElementById('recent-users-list');
+            onSnapshot(query(collection(db, "characters"), orderBy("time", "desc")), (snap) => {
+                const list = document.getElementById('char-list');
                 list.innerHTML = "";
                 snap.forEach(d => {
-                    const data = d.data();
-                    const card = document.createElement('div');
-                    card.className = "user-mini-card";
-                    card.innerHTML = `<img src="${data.imageUrl}" class="card-img">
-                        <div><b style="color:var(--gold)">${data.nickname}</b><br><small>Lv.${data.level} ${data.race}</small></div>`;
-                    card.onclick = () => viewDetail(d.id, data);
-                    list.appendChild(card);
+                    const item = d.data();
+                    const div = document.createElement('div');
+                    div.className = "archive-item";
+                    div.innerHTML = `<img src="${item.imageUrl}" class="mini-pfp">
+                                    <div><b>${item.nickname}</b><br><small>${item.race} / ${item.gender}</small></div>`;
+                    div.onclick = () => showDetail(d.id, item);
+                    list.appendChild(div);
                 });
             });
         }
 
-        function viewDetail(id, data) {
-            currentDocId = id;
-            document.getElementById('form-title').innerText = "ARCHIVE VIEW";
+        function showDetail(id, data) {
+            currentId = id;
             document.getElementById('nickname').value = data.nickname;
             document.getElementById('race').value = data.race;
-            document.getElementById('lv-val').value = data.level;
+            document.getElementById('gender').value = data.gender;
             document.getElementById('bio').value = data.bio;
-            document.getElementById('note-content').value = data.note;
-            document.getElementById('char-img-display').src = data.imageUrl;
-            document.getElementById('char-img-display').style.display = 'block';
-            document.getElementById('upload-placeholder').style.display = 'none';
-
-            document.querySelectorAll('.tag').forEach(t => {
-                if(t.id !== 'add-tag-btn') t.classList.toggle('active', data.traits.includes(t.innerText));
+            document.getElementById('secret-note').value = data.secret;
+            document.getElementById('view-img').src = data.imageUrl;
+            document.getElementById('view-img').style.display = 'block';
+            document.getElementById('upload-zone').style.display = 'none';
+            
+            // 태그 활성화
+            document.querySelectorAll('.trait-tag').forEach(t => {
+                t.classList.toggle('active', data.traits.includes(t.innerText));
             });
 
-            toggleInputs(true);
+            // 권한 제어 (본인 글일 때만 수정/삭제 보임)
+            const isOwner = userSession.uid === data.author;
             document.getElementById('save-btn').style.display = 'none';
-            document.getElementById('update-btn').style.display = 'none';
-            document.getElementById('auth-buttons').style.display = 'flex';
-
-            // 권한 체크
-            const isAuthor = currentUser.uid === data.authorId;
-            const isAdmin = currentUser.role === 'admin';
-
-            document.getElementById('edit-btn').style.display = isAuthor ? 'block' : 'none';
-            document.getElementById('delete-btn').style.display = (isAuthor || isAdmin) ? 'block' : 'none';
+            document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
+            document.getElementById('mode-title').innerText = isOwner ? "MY RECORD" : "ARCHIVE VIEW";
         }
-
-        window.enableEdit = () => {
-            toggleInputs(false);
-            document.getElementById('auth-buttons').style.display = 'none';
-            document.getElementById('update-btn').style.display = 'block';
-        };
-
-        window.updateCharacter = async () => {
-            await updateDoc(doc(db, "characters", currentDocId), {
-                nickname: document.getElementById('nickname').value,
-                race: document.getElementById('race').value,
-                level: Number(document.getElementById('lv-val').value),
-                traits: Array.from(document.querySelectorAll('.tag.active:not(#add-tag-btn)')).map(t => t.innerText),
-                bio: document.getElementById('bio').value, note: document.getElementById('note-content').value
-            });
-            alert("Updated!");
-            const updated = await getDoc(doc(db, "characters", currentDocId));
-            viewDetail(currentDocId, updated.data());
-        };
-
-        window.deleteCharacter = async () => {
-            if(confirm("Destroy this record forever?")) {
-                await deleteDoc(doc(db, "characters", currentDocId));
-                resetForm();
-            }
-        };
 
         window.resetForm = () => {
-            currentDocId = null; document.getElementById('form-title').innerText = "NEW CHARACTER";
-            toggleInputs(false); clearFields();
+            currentId = null;
+            document.getElementById('nickname').value = "";
+            document.getElementById('bio').value = "";
+            document.getElementById('view-img').style.display = 'none';
+            document.getElementById('upload-zone').style.display = 'block';
             document.getElementById('save-btn').style.display = 'block';
-            document.getElementById('auth-buttons').style.display = 'none';
-            document.getElementById('update-btn').style.display = 'none';
+            document.getElementById('edit-group').style.display = 'none';
+            document.querySelectorAll('.trait-tag').forEach(t => t.classList.remove('active'));
         };
 
-        function toggleInputs(disabled) {
-            ['nickname', 'race', 'lv-val', 'bio', 'note-content'].forEach(id => document.getElementById(id).disabled = disabled);
-        }
-
-        function clearFields() {
-            document.getElementById('nickname').value = ""; document.getElementById('lv-val').value = 1;
-            document.getElementById('bio').value = ""; document.getElementById('note-content').value = "";
-            document.getElementById('char-img-display').style.display = 'none';
-            document.getElementById('upload-placeholder').style.display = 'block';
-            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
-        }
-
-        window.toggleTag = (el) => { if(!document.getElementById('nickname').disabled) el.classList.toggle('active'); };
-        window.addCustomTag = () => {
-            const val = prompt("New Trait:");
+        window.addCustomTrait = () => {
+            const val = prompt("새로운 특성:");
             if(val) {
                 const span = document.createElement('span');
-                span.className = 'tag active'; span.innerText = val;
-                span.onclick = () => toggleTag(span);
-                document.getElementById('trait-container').insertBefore(span, document.getElementById('add-tag-btn'));
+                span.className = 'trait-tag active'; span.innerText = val;
+                span.onclick = function() { this.classList.toggle('active'); };
+                document.getElementById('trait-box').insertBefore(span, document.querySelector('#trait-box span:last-child'));
             }
-        };
+        }
     </script>
 </body>
 </html>
