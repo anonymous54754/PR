@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>심연의 고딕 기록소 - 최종장</title>
+    <title>Gothic Abyss Archive - Final Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,14 +15,12 @@
         body {
             margin: 0; padding: 0; width: 100%; height: 100vh;
             font-family: 'Noto Serif KR', serif;
-            /* 나노바나나로 생성했던 고딕 대성당 배경 적용 */
             background: var(--g-black) url('https://image_link_to_gothic_cathedral.jpg') no-repeat center center fixed;
             background-size: cover;
             display: flex; justify-content: center; align-items: center;
             color: var(--g-gold); overflow: hidden;
         }
 
-        /* 고딕 프레임 디자인 */
         .gothic-panel {
             background: var(--g-inner);
             border: 10px solid transparent;
@@ -31,13 +29,9 @@
             padding: 30px; display: flex; flex-direction: column; position: relative;
         }
 
-        .app-grid {
-            display: none; width: 98vw; height: 95vh;
-            grid-template-columns: 350px 1fr 450px; gap: 25px;
-        }
+        .app-grid { display: none; width: 98vw; height: 95vh; grid-template-columns: 350px 1fr 450px; gap: 25px; }
         .active { display: grid; }
 
-        /* 버튼: 고딕 육각형 & 붉은 광채 */
         .g-btn {
             background: linear-gradient(135deg, #400, #100);
             color: var(--g-gold); border: 1px solid var(--g-gold);
@@ -47,22 +41,21 @@
         }
         .g-btn:hover { background: var(--g-gold); color: black; box-shadow: 0 0 15px var(--g-gold); }
 
-        /* 입력창 & 선택창 */
         input, textarea, select {
             background: #000; border: 1px solid #444; color: #fff;
-            padding: 10px; margin-bottom: 10px; border-radius: 0; width: 100%; box-sizing: border-box;
+            padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
         }
         input:focus { border-color: var(--g-red); outline: none; }
 
-        /* 특성 선택 칩 */
-        .trait-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        /* 특성 칩 디자인 */
+        .trait-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
         .trait-chip {
             padding: 5px 10px; border: 1px solid var(--g-gold); font-size: 0.8rem;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: 0.2s; background: rgba(0,0,0,0.5);
         }
-        .trait-chip.selected { background: var(--g-red); color: white; border-color: white; }
+        .trait-chip.selected { background: var(--g-red); color: white; border-color: #fff; }
 
-        /* 리스트 아이템 */
+        /* 리스트 카드 */
         .hero-card {
             background: rgba(40, 0, 0, 0.3); border: 1px solid #333;
             padding: 10px; margin-bottom: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;
@@ -70,13 +63,9 @@
         .hero-card:hover { border-color: var(--g-gold); background: rgba(80, 0, 0, 0.4); }
         .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
 
-        /* 로그아웃 버튼 */
-        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.8rem; background: none; border: 1px solid var(--g-red); color: var(--g-red); cursor: pointer; }
+        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: none; border: 1px solid var(--g-red); color: var(--g-red); cursor: pointer; }
 
-        #main-view-img { 
-            max-height: 80%; filter: drop-shadow(0 0 30px var(--g-red)); 
-            animation: float 4s ease-in-out infinite; 
-        }
+        #main-view-img { max-height: 80%; filter: drop-shadow(0 0 30px var(--g-red)); animation: float 4s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     </style>
 </head>
@@ -98,10 +87,10 @@
             <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="resetForm()">NEW SACRIFICE</button>
         </div>
 
-        <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+        <div style="display: flex; justify-content: center; align-items: center;">
             <img id="main-view-img" src="" style="display: none;">
             <div id="upload-zone" style="text-align: center;">
-                <p>NO SOUL SUMMONED</p>
+                <p style="letter-spacing: 2px;">AWAITING SUMMONS</p>
                 <button class="g-btn" onclick="document.getElementById('file-in').click()">UPLOAD IMAGE</button>
                 <input type="file" id="file-in" hidden onchange="previewHero(event)">
             </div>
@@ -124,6 +113,10 @@
                     <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                    <input type="text" id="etc-trait" placeholder="기타 특성..." style="margin-bottom: 0; flex: 1; height: 35px;">
+                    <button class="g-btn" style="padding: 0 10px; font-size: 0.8rem; height: 35px;" onclick="addEtcTrait()">추가</button>
                 </div>
 
                 <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
@@ -164,7 +157,7 @@
         let selectedFile = null;
         let currentDocId = null;
 
-        // --- 1. 인증 기능 ---
+        // --- 인증 ---
         window.handleAuth = async (type) => {
             const email = document.getElementById('email').value;
             const pw = document.getElementById('pw').value;
@@ -173,7 +166,6 @@
                 else await createUserWithEmailAndPassword(auth, email, pw);
             } catch(e) { alert("Access Denied: " + e.message); }
         };
-
         window.handleLogout = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
@@ -188,38 +180,26 @@
             }
         });
 
-        // --- 2. 데이터 관리 (CRUD) ---
+        // --- 특성 관리 ---
         window.toggleTrait = (el) => el.classList.toggle('selected');
+        window.addEtcTrait = () => {
+            const val = document.getElementById('etc-trait').value.trim();
+            if(!val) return;
+            const box = document.getElementById('trait-box');
+            const chip = document.createElement('span');
+            chip.className = "trait-chip selected etc-temp"; // 임시 표시용 클래스
+            chip.innerText = val;
+            chip.onclick = function() { toggleTrait(this); };
+            box.appendChild(chip);
+            document.getElementById('etc-trait').value = "";
+        };
 
+        // --- 이미지 & 리스트 ---
         window.previewHero = (e) => {
             selectedFile = e.target.files[0];
             document.getElementById('main-view-img').src = URL.createObjectURL(selectedFile);
             document.getElementById('main-view-img').style.display = 'block';
             document.getElementById('upload-zone').style.display = 'none';
-        };
-
-        window.saveData = async () => {
-            if(!selectedFile) return alert("Upload an image first!");
-            const name = document.getElementById('nickname').value;
-            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
-            
-            const sRef = ref(storage, `gothic/${Date.now()}`);
-            await uploadBytes(sRef, selectedFile);
-            const url = await getDownloadURL(sRef);
-
-            await addDoc(collection(db, "characters"), {
-                nickname: name,
-                gender: document.getElementById('gender').value,
-                level: document.getElementById('level').value,
-                traits: traits,
-                bio: document.getElementById('bio').value,
-                note: document.getElementById('note').value,
-                imageUrl: url,
-                author: currentUser.uid,
-                time: new Date()
-            });
-            alert("Contract Sealed.");
-            resetForm();
         };
 
         function loadList() {
@@ -237,6 +217,29 @@
             });
         }
 
+        // --- CRUD ---
+        window.saveData = async () => {
+            if(!selectedFile) return alert("이미지가 필요합니다.");
+            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
+            const sRef = ref(storage, `final/${Date.now()}`);
+            await uploadBytes(sRef, selectedFile);
+            const url = await getDownloadURL(sRef);
+
+            await addDoc(collection(db, "characters"), {
+                nickname: document.getElementById('nickname').value,
+                gender: document.getElementById('gender').value,
+                level: document.getElementById('level').value,
+                traits: traits,
+                bio: document.getElementById('bio').value,
+                note: document.getElementById('note').value,
+                imageUrl: url,
+                author: currentUser.uid,
+                time: new Date()
+            });
+            alert("저장 완료.");
+            resetForm();
+        };
+
         function showDetail(id, data) {
             currentDocId = id;
             document.getElementById('nickname').value = data.nickname;
@@ -248,19 +251,32 @@
             document.getElementById('main-view-img').style.display = 'block';
             document.getElementById('upload-zone').style.display = 'none';
             
-            // 특성 복구
-            document.querySelectorAll('.trait-chip').forEach(chip => {
-                chip.classList.toggle('selected', data.traits.includes(chip.innerText));
+            // 기존 칩 복구 및 '기타' 칩 임시 생성
+            const box = document.getElementById('trait-box');
+            box.innerHTML = `
+                <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
+            `;
+            data.traits.forEach(t => {
+                let chip = [...box.querySelectorAll('.trait-chip')].find(c => c.innerText === t);
+                if(!chip) {
+                    chip = document.createElement('span');
+                    chip.className = "trait-chip";
+                    chip.innerText = t;
+                    chip.onclick = function() { toggleTrait(this); };
+                    box.appendChild(chip);
+                }
+                chip.classList.add('selected');
             });
 
-            const isOwner = currentUser.uid === data.author;
             document.getElementById('save-btn').style.display = 'none';
-            document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
+            document.getElementById('edit-group').style.display = (currentUser.uid === data.author) ? 'flex' : 'none';
         }
 
         window.updateData = async () => {
-            const docRef = doc(db, "characters", currentDocId);
-            await updateDoc(docRef, {
+            await updateDoc(doc(db, "characters", currentDocId), {
                 nickname: document.getElementById('nickname').value,
                 gender: document.getElementById('gender').value,
                 level: document.getElementById('level').value,
@@ -268,12 +284,11 @@
                 bio: document.getElementById('bio').value,
                 note: document.getElementById('note').value
             });
-            alert("Record Altered.");
-            resetForm();
+            alert("수정 완료."); resetForm();
         };
 
         window.deleteData = async () => {
-            if(confirm("Erase this soul forever?")) {
+            if(confirm("영구히 삭제하시겠습니까?")) {
                 await deleteDoc(doc(db, "characters", currentDocId));
                 resetForm();
             }
@@ -285,8 +300,13 @@
             document.getElementById('upload-zone').style.display = 'block';
             document.getElementById('save-btn').style.display = 'block';
             document.getElementById('edit-group').style.display = 'none';
-            ['nickname', 'bio', 'note'].forEach(id => document.getElementById(id).value = "");
-            document.querySelectorAll('.trait-chip').forEach(c => c.classList.remove('selected'));
+            ['nickname', 'bio', 'note', 'etc-trait'].forEach(id => document.getElementById(id).value = "");
+            document.getElementById('trait-box').innerHTML = `
+                <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
+                <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
+            `;
         };
     </script>
 </body>
