@@ -3,171 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <title>낭만 MMORPG: 모험의 서</title>
-    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=MedievalSharp&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 🎨 낭만 RPG 감성 디자인 --- */
         :root {
             --gold: #f3cf7a;
-            --dark-brown: #3e2723;
-            --wood: #5d4037;
+            --panel-bg: url('https://images.unsplash.com/photo-1587582423116-ec07293f0395?q=80&w=1000&auto=format&fit=crop'); /* 나무 텍스처 */
             --soft-glow: 0 0 15px rgba(243, 207, 122, 0.5);
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Gaegu', cursive; /* 귀여운 폰트 적용 */
+            font-family: 'MedievalSharp', 'Noto Sans KR', serif;
             background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
-            color: #eee;
-            overflow: hidden;
+            color: #eee; overflow: hidden;
         }
 
-        /* 화면 전환 효과 */
+        /* 공통 패널 스타일 (나무 느낌) */
+        .panel {
+            background: var(--panel-bg);
+            background-size: cover;
+            border: 4px solid #3e2723;
+            outline: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 20px rgba(0,0,0,0.5);
+        }
+
         .screen {
             display: none; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             position: absolute; justify-content: center; align-items: center;
-            animation: fadeIn 0.8s ease-in-out;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .active { display: flex; }
 
-        /* --- 🔐 로그인 & 가입 (정통 RPG 스타일) --- */
-        .auth-box {
-            background: linear-gradient(145deg, #4e342e, #2b1d1a);
-            padding: 40px;
-            border: 4px solid var(--gold);
-            border-radius: 20px;
-            text-align: center;
-            width: 380px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), var(--soft-glow);
-        }
-
-        .auth-box h2 { font-size: 32px; color: var(--gold); margin-bottom: 20px; text-shadow: 2px 2px #000; }
-
-        .input-group { position: relative; margin-bottom: 20px; }
-        .input-group input {
-            width: 100%; padding: 12px; box-sizing: border-box;
-            background: #1a1210; border: 2px solid #8d6e63;
-            color: var(--gold); border-radius: 10px; font-size: 18px;
-        }
-        .eye-icon { position: absolute; right: 15px; top: 12px; cursor: pointer; font-size: 20px; }
-
+        /* 버튼 RPG 스타일 */
         .btn-game {
             background: linear-gradient(to bottom, #8d6e63, #3e2723);
             border: 2px solid var(--gold);
             color: var(--gold);
-            padding: 12px 30px;
-            font-size: 20px;
+            padding: 10px 20px;
+            font-family: 'Cinzel', serif;
             font-weight: bold;
-            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
             text-shadow: 1px 1px 2px #000;
-            width: 100%;
+            transition: 0.2s;
         }
-        .btn-game:hover { transform: scale(1.03); filter: brightness(1.2); box-shadow: var(--soft-glow); }
+        .btn-game:hover { filter: brightness(1.3); transform: scale(1.05); }
 
-        /* --- 👤 성별 선택 (그림자 실루엣) --- */
-        .gender-container { display: flex; gap: 40px; }
-        .gender-card {
-            cursor: pointer; transition: 0.3s; filter: grayscale(100%); opacity: 0.6;
-        }
-        .gender-card:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-10px); }
-        .gender-silhouette {
-            width: 160px; height: 260px;
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-        }
-        /* 남성/여성 실루엣 이미지 (SVG 아이콘 활용) */
-        .male-img { background-image: url('https://www.svgrepo.com/show/347201/male-silhouette.svg'); filter: invert(0.8); }
-        .female-img { background-image: url('https://www.svgrepo.com/show/347200/female-silhouette.svg'); filter: invert(0.8); }
-
-        /* --- ⚔️ 메인 UI --- */
+        /* 메인 컨테이너 */
         .main-container {
-            display: grid; grid-template-columns: 280px 1fr 320px;
-            width: 95%; height: 90%; gap: 20px;
+            display: grid; grid-template-columns: 300px 1fr 350px;
+            width: 98%; height: 95%; gap: 15px;
         }
-        .panel {
-            background: rgba(43, 29, 26, 0.9);
-            border: 3px solid var(--gold);
-            border-radius: 15px;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: inset 0 0 10px #000;
+
+        /* 왼쪽 목록 스크롤 설정 */
+        #recent-users-list {
+            height: 80vh; overflow-y: auto; padding-right: 10px;
         }
+        #recent-users-list::-webkit-scrollbar { width: 8px; }
+        #recent-users-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         .user-mini-card {
-            display: flex; align-items: center; margin-bottom: 15px;
-            padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3);
-            border: 1px solid #5d4037; cursor: pointer;
+            display: flex; align-items: center; margin-bottom: 10px;
+            padding: 10px; background: rgba(0,0,0,0.5);
+            border: 1px solid #5d4037; cursor: pointer; border-radius: 5px;
         }
-        .mini-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 12px; }
+        .user-mini-card:hover { border-color: var(--gold); }
 
-        .char-preview {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+        /* 캐릭터 미리보기 */
         .char-frame {
-            width: 350px; height: 500px; border: 8px double var(--gold);
-            background: radial-gradient(circle, #5d4037, #1a1210);
-            border-radius: 50px 50px 10px 10px; position: relative;
-            overflow: hidden; animation: float 5s infinite ease-in-out;
+            width: 100%; height: 550px; border: 10px double var(--gold);
+            background: rgba(0,0,0,0.4); border-radius: 20px;
+            position: relative; overflow: hidden;
         }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .admin-note {
-            background: #fff9c4; color: #333; padding: 10px; margin-top: 10px;
-            border-radius: 5px; font-size: 14px; border-left: 5px solid #fbc02d;
-        }
-        
+        /* 특성 태그 */
         .tag {
-            display: inline-block; padding: 5px 12px; margin: 4px;
-            background: #3e2723; border: 1px solid var(--gold);
-            border-radius: 20px; font-size: 14px; cursor: pointer;
+            display: inline-block; padding: 5px 10px; margin: 3px;
+            background: rgba(0,0,0,0.6); border: 1px solid var(--gold);
+            border-radius: 5px; font-size: 13px; cursor: pointer;
         }
         .tag.active { background: var(--gold); color: #3e2723; font-weight: bold; }
 
+        /* 쪽지 스타일 */
+        .note-box {
+            background: rgba(255, 255, 255, 0.1); padding: 10px;
+            border-radius: 5px; margin-top: 10px; font-size: 14px;
+            border-left: 4px solid var(--gold);
+        }
+        .secret-note { color: #ffab91; font-style: italic; }
+
+        input, textarea, select {
+            background: #1a1210; border: 1px solid #5d4037; color: white;
+            padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="screen active">
-        <div class="auth-box">
-            <h2>LOG IN</h2>
-            <div class="input-group"><input type="email" id="login-email" placeholder="이메일 아이디"></div>
-            <div class="input-group">
-                <input type="password" id="login-pw" placeholder="비밀번호">
-                <span class="eye-icon" onclick="togglePw('login-pw')">👁️</span>
-            </div>
-            <button class="btn-game" onclick="handleLogin()">세계로 입장</button>
-            <p style="margin-top:20px; cursor:pointer; color: #aaa;" onclick="showScreen('signup-screen')">새로운 모험가이신가요?</p>
+        <div class="panel" style="width:350px; text-align:center;">
+            <h1 style="font-family:'Cinzel'; color:var(--gold);">ADVENTURER LOGIN</h1>
+            <input type="email" id="login-email" placeholder="이메일 아이디" style="margin-bottom:10px;">
+            <input type="password" id="login-pw" placeholder="비밀번호" style="margin-bottom:20px;">
+            <button class="btn-game" style="width:100%" onclick="handleLogin()">세계 입장</button>
+            <p style="cursor:pointer; font-size:14px; margin-top:10px;" onclick="showScreen('signup-screen')">신규 모험가 등록</p>
         </div>
     </div>
 
     <div id="signup-screen" class="screen">
-        <div class="auth-box" style="border-color: #f8bbd0;">
-            <h2 style="color:#f8bbd0;">SIGN UP</h2>
-            <div class="input-group"><input type="email" id="signup-email" placeholder="사용할 이메일"></div>
-            <div class="input-group">
-                <input type="password" id="signup-pw" placeholder="비밀번호">
-                <span class="eye-icon" onclick="togglePw('signup-pw')">👁️</span>
-            </div>
-            <button class="btn-game" style="background: #6a1b9a;" onclick="handleSignup()">계정 생성</button>
-            <button class="btn-game" style="margin-top:10px; border:none; background:none; color:#aaa;" onclick="showScreen('login-screen')">이전으로</button>
+        <div class="panel" style="width:350px; text-align:center;">
+            <h1 style="font-family:'Cinzel'; color:var(--gold);">NEW HERO</h1>
+            <input type="email" id="signup-email" placeholder="이메일" style="margin-bottom:10px;">
+            <input type="password" id="signup-pw" placeholder="비밀번호" style="margin-bottom:20px;">
+            <button class="btn-game" style="width:100%" onclick="handleSignup()">등록 완료</button>
         </div>
     </div>
 
     <div id="gender-screen" class="screen">
         <div style="text-align: center;">
-            <h1 style="color: var(--gold); text-shadow: 2px 2px 5px #000; font-size: 40px;">모험가의 성별을 선택하세요</h1>
-            <div class="gender-container">
-                <div class="gender-card" onclick="selectGender('남성')">
-                    <div class="gender-silhouette male-img"></div>
-                    <h2 style="color: #90caf9;">MALE</h2>
+            <h1 style="font-family:'Cinzel'; color:var(--gold); font-size: 40px;">CHOOSE YOUR PATH</h1>
+            <div style="display:flex; gap:50px;">
+                <div onclick="selectGender('남성')" style="cursor:pointer;">
+                    <img src="https://www.svgrepo.com/show/347201/male-silhouette.svg" width="150" style="filter:invert(1);">
+                    <h2>MALE</h2>
                 </div>
-                <div class="gender-card" onclick="selectGender('여성')">
-                    <div class="gender-silhouette female-img"></div>
-                    <h2 style="color: #f48fb1;">FEMALE</h2>
+                <div onclick="selectGender('여성')" style="cursor:pointer;">
+                    <img src="https://www.svgrepo.com/show/347200/female-silhouette.svg" width="150" style="filter:invert(1);">
+                    <h2>FEMALE</h2>
                 </div>
             </div>
         </div>
@@ -176,70 +141,72 @@
     <div id="main-screen" class="screen">
         <div class="main-container">
             <div class="panel">
-                <h3 style="border-bottom: 2px solid var(--gold); padding-bottom: 10px;">최근 모험가</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="font-family:'Cinzel'; color:var(--gold);">ARCHIVES</h3>
+                    <button class="btn-game" style="font-size:12px; padding:5px;" onclick="showScreen('gender-screen')">HOME</button>
+                </div>
                 <div id="recent-users-list"></div>
             </div>
 
-            <div class="char-preview">
-                <div class="char-frame">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="char-frame" id="char-view-area">
                     <img id="char-img-display" src="" style="width:100%; height:100%; object-fit: cover; display:none;">
-                    <div id="upload-placeholder" style="text-align:center; padding-top: 180px;">
-                        <button class="btn-game" style="width:auto;" onclick="document.getElementById('file-input').click()">➕ 사진 등록</button>
-                        <p style="color: var(--gold); margin-top:10px;">캐릭터의 모습을 올려주세요</p>
+                    <div id="upload-placeholder" style="text-align:center; padding-top: 200px;">
+                        <button class="btn-game" onclick="document.getElementById('file-input').click()">UPLOAD IMAGE</button>
                     </div>
-                    <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(event)">
+                    <input type="file" id="file-input" hidden onchange="previewImage(event)">
+                </div>
+                <div id="action-buttons" style="display:flex; gap:10px; justify-content:center; display:none;">
+                    <button id="edit-btn" class="btn-game" style="background:#2e7d32;">수정하기</button>
+                    <button id="delete-btn" class="btn-game" style="background:#c62828;">영구 삭제</button>
                 </div>
             </div>
 
             <div class="panel">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="font-size:20px; color:var(--gold);">LEVEL</span>
-                    <div>
-                        <button class="btn-game" style="width:30px; padding:5px;" onclick="changeLv(-1)">-</button>
-                        <span id="lv-val" style="font-size: 24px; margin: 0 10px;">1</span>
-                        <button class="btn-game" style="width:30px; padding:5px;" onclick="changeLv(1)">+</button>
+                <h3 id="form-title" style="font-family:'Cinzel'; color:var(--gold);">NEW CHARACTER</h3>
+                
+                <label>NICKNAME</label>
+                <input type="text" id="nickname">
+
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <div style="flex:1;"><label>RACE</label>
+                        <select id="race"><option>인간</option><option>엘프</option><option>드워프</option><option>오크</option></select>
+                    </div>
+                    <div style="flex:1;"><label>LEVEL</label>
+                        <input type="number" id="lv-val" value="1">
                     </div>
                 </div>
-                <hr style="border:1px solid #5d4037; margin:15px 0;">
 
-                <label>닉네임</label>
-                <input type="text" id="nickname" placeholder="모험가의 이름" style="width:100%; padding:10px; margin:8px 0; background:#1a1210; border:1px solid var(--gold); color:white; border-radius:5px;">
-
-                <label>종족</label>
-                <select id="race" style="width:100%; padding:10px; margin:8px 0; background:#1a1210; border:1px solid var(--gold); color:white; border-radius:5px;">
-                    <option>인간</option><option>엘프</option><option>드워프</option>
-                </select>
-
-                <label>특성</label>
-                <div class="trait-tags" id="trait-container">
-                    <span class="tag" onclick="toggleTag(this)">까칠함</span>
+                <label style="display:block; margin-top:10px;">TRAITS</label>
+                <div id="trait-container">
                     <span class="tag" onclick="toggleTag(this)">다정함</span>
-                    <span class="tag" onclick="toggleTag(this)">재능있음</span>
+                    <span class="tag" onclick="toggleTag(this)">용맹함</span>
+                    <span class="tag" onclick="toggleTag(this)">지혜로움</span>
                     <span class="tag" onclick="addCustomTag()">+ 기타</span>
                 </div>
 
-                <label>한줄 소개</label>
-                <textarea id="bio" rows="3" style="width:100%; background:#1a1210; color:white; border:1px solid var(--gold); border-radius:5px; margin-top:8px;"></textarea>
+                <label style="display:block; margin-top:10px;">BIO</label>
+                <textarea id="bio" rows="3"></textarea>
 
-                <button class="btn-game" style="margin-top:20px;" onclick="saveCharacter()">정보 저장하기</button>
-                <button class="btn-game" style="margin-top:10px; background: #c62828; font-size:14px; padding:5px;" onclick="handleLogout()">접속 종료</button>
-                
-                <div id="admin-section" style="display:none; margin-top:20px;">
-                    <hr>
-                    <p style="color:var(--gold)">🚩 관리자 전용 쪽지</p>
-                    <textarea id="admin-msg" placeholder="해당 유저에게 쪽지 남기기..." style="width:100%; background:#000; color:white;"></textarea>
-                    <button class="btn-game" onclick="sendAdminNote()">쪽지 남기기</button>
+                <div style="background:rgba(0,0,0,0.3); padding:10px; margin-top:10px; border-radius:5px;">
+                    <label>SECRET NOTE (Admin/Writer Only)</label>
+                    <textarea id="note-content" placeholder="비밀 쪽지 내용을 입력하세요..."></textarea>
+                    <label style="font-size:12px;"><input type="checkbox" id="is-secret" style="width:auto;"> 비밀로 설정</label>
                 </div>
+
+                <button class="btn-game" style="width:100%; margin-top:15px;" id="save-btn" onclick="saveCharacter()">저장하기 (NEW SLOT)</button>
+                <button class="btn-game" style="width:100%; margin-top:5px; font-size:12px; opacity:0.7;" onclick="resetForm()">입력창 초기화</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+        // 파이어베이스 설정
         const firebaseConfig = {
             apiKey: "AIzaSyB9zSYPDBJRt2oTIcbEa8kxZplCvSPazUU",
             authDomain: "prof-f0cd2.firebaseapp.com",
@@ -254,149 +221,180 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let userRole = 'user';
+        let currentUserData = null;
+        let selectedGender = "미정";
+        let currentEditId = null; // 수정 중인 문서 ID
 
-        // 화면 전환 함수
         window.showScreen = (id) => {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         };
 
-        // 비밀번호 눈 아이콘
-        window.togglePw = (id) => {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
+        // 로그인/가입 로직
+        window.handleSignup = async () => {
+            const e = document.getElementById('signup-email').value;
+            const p = document.getElementById('signup-pw').value;
+            try {
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                await setDoc(doc(db, "users", res.user.uid), { role: 'user', email: e });
+                alert("영웅의 탄생을 축하합니다!");
+                showScreen('gender-screen');
+            } catch(err) { alert(err.message); }
         };
 
-        // 성별 선택 후 메인 화면으로 이동 (가장 중요한 부분!)
-        window.selectGender = async (gender) => {
-            const user = auth.currentUser;
-            if (user) {
-                // DB에 성별 저장
-                await setDoc(doc(db, "users", user.uid), { gender: gender }, { merge: true });
-                showScreen('main-screen');
-                loadRecentUsers();
+        window.handleLogin = async () => {
+            const e = document.getElementById('login-email').value;
+            const p = document.getElementById('login-pw').value;
+            try {
+                const res = await signInWithEmailAndPassword(auth, e, p);
+                const userDoc = await getDoc(doc(db, "users", res.user.uid));
+                currentUserData = userDoc.data();
+                showScreen('gender-screen');
+                loadAllCharacters();
+            } catch(err) { alert("입장 실패: 정보를 확인하세요."); }
+        };
+
+        window.selectGender = (g) => { selectedGender = g; showScreen('main-screen'); };
+
+        // 특성 로직
+        window.toggleTag = (el) => el.classList.toggle('active');
+        window.addCustomTag = () => {
+            const t = prompt("새로운 특성:");
+            if(t) {
+                const s = document.createElement('span');
+                s.className = 'tag active'; s.innerText = t;
+                s.onclick = () => toggleTag(s);
+                document.getElementById('trait-container').insertBefore(s, document.getElementById('trait-container').lastChild);
             }
         };
 
-        // 회원가입
-        window.handleSignup = async () => {
-            const email = document.getElementById('signup-email').value;
-            const pw = document.getElementById('signup-pw').value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, pw);
-                alert("반갑습니다! 모험가님.");
-                showScreen('gender-screen');
-            } catch(e) { alert(e.message); }
-        };
-
-        // 로그인
-        window.handleLogin = async () => {
-            const email = document.getElementById('login-email').value;
-            const pw = document.getElementById('login-pw').value;
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pw);
-                const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
-                
-                if (userDoc.exists() && userDoc.data().status === 'deleted') {
-                    alert("탈퇴한 회원입니다.");
-                    await signOut(auth);
-                    return;
-                }
-
-                // 성별 선택 여부에 따라 화면 결정
-                if (userDoc.exists() && userDoc.data().gender) {
-                    showScreen('main-screen');
-                    loadRecentUsers();
-                } else {
-                    showScreen('gender-screen');
-                }
-
-                // 어드민 체크
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
-                    userRole = 'admin';
-                    document.getElementById('admin-section').style.display = 'block';
-                }
-            } catch(e) { alert("로그인 정보를 확인해주세요."); }
-        };
-
-        // 로그아웃
-        window.handleLogout = () => { signOut(auth); location.reload(); };
-
-        // 레벨 조절
-        let currentLv = 1;
-        window.changeLv = (amt) => {
-            currentLv = Math.max(1, Math.min(500, currentLv + amt));
-            document.getElementById('lv-val').innerText = currentLv;
-        };
-
         // 이미지 미리보기
-        let selectedFile;
+        let selectedFile = null;
         window.previewImage = (e) => {
             selectedFile = e.target.files[0];
             const reader = new FileReader();
             reader.onload = () => {
                 const img = document.getElementById('char-img-display');
-                img.src = reader.result;
-                img.style.display = 'block';
+                img.src = reader.result; img.style.display = 'block';
                 document.getElementById('upload-placeholder').style.display = 'none';
             };
             reader.readAsDataURL(selectedFile);
         };
 
-        // 데이터 저장
+        // 캐릭터 저장 (새 슬롯 저장)
         window.saveCharacter = async () => {
             const user = auth.currentUser;
             if(!user) return;
 
-            let imageUrl = document.getElementById('char-img-display').src;
+            const name = document.getElementById('nickname').value;
+            if(!name) return alert("닉네임을 입력하세요!");
+
+            let url = document.getElementById('char-img-display').src;
             if(selectedFile) {
-                const sRef = ref(storage, `chars/${user.uid}`);
+                const sRef = ref(storage, `chars/${Date.now()}`);
                 await uploadBytes(sRef, selectedFile);
-                imageUrl = await getDownloadURL(sRef);
+                url = await getDownloadURL(sRef);
             }
 
             const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
-
-            await updateDoc(doc(db, "users", user.uid), {
-                nickname: document.getElementById('nickname').value,
-                level: currentLv,
+            const data = {
+                uid: user.uid,
+                nickname: name,
+                gender: selectedGender,
                 race: document.getElementById('race').value,
+                level: document.getElementById('lv-val').value,
                 traits: traits,
                 bio: document.getElementById('bio').value,
-                imageUrl: imageUrl,
-                updatedAt: new Date()
-            });
+                note: document.getElementById('note-content').value,
+                isSecret: document.getElementById('is-secret').checked,
+                imageUrl: url,
+                createdAt: new Date()
+            };
 
-            alert("캐릭터가 성공적으로 저장되었습니다!");
+            if(currentEditId) {
+                await updateDoc(doc(db, "characters", currentEditId), data);
+                alert("모험의 기록이 수정되었습니다.");
+            } else {
+                await addDoc(collection(db, "characters"), data);
+                alert("새로운 영웅이 아카이브에 기록되었습니다!");
+            }
+            resetForm();
         };
 
-        // 최근 유저 목록 실시간 업데이트
-        function loadRecentUsers() {
-            const q = query(collection(db, "users"), orderBy("updatedAt", "desc"), limit(5));
-            onSnapshot(q, (snapshot) => {
+        window.resetForm = () => {
+            currentEditId = null;
+            document.getElementById('form-title').innerText = "NEW CHARACTER";
+            document.getElementById('nickname').value = "";
+            document.getElementById('lv-val').value = 1;
+            document.getElementById('bio').value = "";
+            document.getElementById('note-content').value = "";
+            document.getElementById('is-secret').checked = false;
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            document.getElementById('char-img-display').style.display = 'none';
+            document.getElementById('upload-placeholder').style.display = 'block';
+            document.getElementById('action-buttons').style.display = 'none';
+            selectedFile = null;
+        };
+
+        // 모든 캐릭터 불러오기 및 상세보기
+        function loadAllCharacters() {
+            const q = query(collection(db, "characters"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snap) => {
                 const list = document.getElementById('recent-users-list');
                 list.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (!data.nickname) return; // 닉네임 없는 초기 유저는 패스
+                snap.forEach(d => {
+                    const data = d.data();
                     const card = document.createElement('div');
                     card.className = "user-mini-card";
-                    card.innerHTML = `
-                        <img class="mini-img" src="${data.imageUrl || 'https://via.placeholder.com/50'}">
-                        <div>
-                            <div style="font-weight:bold; color:var(--gold);">${data.nickname}</div>
-                            <div style="font-size:12px;">Lv.${data.level} ${data.gender || ''} ${data.race}</div>
-                        </div>
-                    `;
-                    card.onclick = () => alert(`[${data.nickname}] 님의 소개: ${data.bio}`);
+                    card.innerHTML = `<img src="${data.imageUrl}" width="40" height="40" style="border-radius:50%; margin-right:10px;">
+                                      <div><b>${data.nickname}</b><br><small>Lv.${data.level} ${data.race}</small></div>`;
+                    card.onclick = () => viewCharacter(d.id, data);
                     list.appendChild(card);
                 });
-                // 빈칸 채우기
-                for(let i=snapshot.size; i<5; i++) {
-                    list.innerHTML += `<div class="user-mini-card" style="opacity:0.3;"><div class="mini-img"></div>비어있음</div>`;
-                }
             });
+        }
+
+        function viewCharacter(id, data) {
+            const user = auth.currentUser;
+            const img = document.getElementById('char-img-display');
+            img.src = data.imageUrl; img.style.display = 'block';
+            document.getElementById('upload-placeholder').style.display = 'none';
+
+            // 쪽지 노출 로직 (비밀인 경우 작성자/Admin만)
+            let noteHtml = "";
+            if(!data.isSecret || (user && (user.uid === data.uid || currentUserData.role === 'admin'))) {
+                noteHtml = `<div class="note-box ${data.isSecret ? 'secret-note' : ''}">
+                                <b>📝 ${data.isSecret ? '[SECRET NOTE]' : '[NOTE]'}</b><br>${data.note || '내용 없음'}
+                            </div>`;
+            }
+
+            // 오른쪽 폼에 데이터 채우기 (수정 준비)
+            document.getElementById('nickname').value = data.nickname;
+            document.getElementById('lv-val').value = data.level;
+            document.getElementById('race').value = data.race;
+            document.getElementById('bio').value = data.bio;
+            document.getElementById('note-content').value = data.note;
+            document.getElementById('is-secret').checked = data.isSecret;
+
+            // 버튼 권한 제어
+            const actionBox = document.getElementById('action-buttons');
+            const editBtn = document.getElementById('edit-btn');
+            const delBtn = document.getElementById('delete-btn');
+            
+            actionBox.style.display = 'flex';
+            
+            // 수정은 본인만
+            editBtn.style.display = (user && user.uid === data.uid) ? 'block' : 'none';
+            editBtn.onclick = () => { currentEditId = id; document.getElementById('form-title').innerText = "EDIT CHARACTER"; alert("수정 모드 활성화"); };
+
+            // 삭제는 본인 또는 Admin
+            delBtn.style.display = (user && (user.uid === data.uid || currentUserData.role === 'admin')) ? 'block' : 'none';
+            delBtn.onclick = async () => {
+                if(confirm("이 영웅의 기록을 영구히 말소합니까?")) {
+                    await deleteDoc(doc(db, "characters", id));
+                    resetForm();
+                }
+            };
         }
     </script>
 </body>
