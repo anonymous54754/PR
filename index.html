@@ -2,202 +2,139 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>낭만 MMORPG: 모험의 서</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <title>심연의 고딕 기록소 - 최종장</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --forest-green: #2d4c3b;
-            --magic-gold: #e2b04a;
-            --paper-dark: #3e2723;
-            --paper-light: #f4e4bc;
-            --fairy-dust: rgba(255, 255, 200, 0.6);
+            --g-red: #800000;
+            --g-gold: #d4af37;
+            --g-black: #0a0a0a;
+            --g-inner: rgba(15, 5, 5, 0.95);
         }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Gaegu', cursive;
-            /* 배경: 버려진 동화 성과 요정의 숲 느낌 (AI 생성 이미지 풍) */
-            background: #1a1a1a url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+        body {
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            font-family: 'Noto Serif KR', serif;
+            /* 나노바나나로 생성했던 고딕 대성당 배경 적용 */
+            background: var(--g-black) url('https://image_link_to_gothic_cathedral.jpg') no-repeat center center fixed;
             background-size: cover;
-            overflow: hidden; color: var(--paper-dark);
+            display: flex; justify-content: center; align-items: center;
+            color: var(--g-gold); overflow: hidden;
         }
 
-        /* 전체 화면 필터: 아날로그 감성 */
-        .sepia-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%);
-            pointer-events: none; z-index: 5;
+        /* 고딕 프레임 디자인 */
+        .gothic-panel {
+            background: var(--g-inner);
+            border: 10px solid transparent;
+            border-image: url('https://www.transparentpng.com/download/gold-frame/vCqE0E-gold-frame-free-download.png') 30 stretch;
+            box-shadow: 0 0 40px rgba(128, 0, 0, 0.6);
+            padding: 30px; display: flex; flex-direction: column; position: relative;
         }
 
-        /* 캔버스 효과: 반짝이는 요정 가루 */
-        #fairy-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 6; }
-
-        .screen { display: none; width: 100%; height: 100%; position: absolute; justify-content: center; align-items: center; z-index: 10; }
-        .active { display: flex; animation: fadeIn 1s ease; }
-
-        /* 나무 줄기 프레임 & 양피지 판넬 */
-        .book-panel {
-            background: var(--paper-light) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            border: 15px solid;
-            border-image: url('https://i.pinimg.com/originals/30/9b/30/309b3010f36746f363c3336d39634e9e.png') 30 fill stretch; /* 나무 줄기 느낌 대용 */
-            box-shadow: 0 0 50px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.2);
-            position: relative; border-radius: 5px;
+        .app-grid {
+            display: none; width: 98vw; height: 95vh;
+            grid-template-columns: 350px 1fr 450px; gap: 25px;
         }
+        .active { display: grid; }
 
-        /* 메인 레이아웃 (3단 구성) */
-        .main-container {
-            display: grid; grid-template-columns: 320px 1fr 420px;
-            width: 96vw; height: 92vh; gap: 15px; padding: 10px;
+        /* 버튼: 고딕 육각형 & 붉은 광채 */
+        .g-btn {
+            background: linear-gradient(135deg, #400, #100);
+            color: var(--g-gold); border: 1px solid var(--g-gold);
+            padding: 12px; font-family: 'Cinzel Decorative'; font-size: 1rem;
+            cursor: pointer; transition: 0.3s;
+            clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
         }
+        .g-btn:hover { background: var(--g-gold); color: black; box-shadow: 0 0 15px var(--g-gold); }
 
-        /* 아카이브 리스트: 낡은 일지 느낌 */
-        .scroll-list { 
-            overflow-y: auto; padding: 15px; height: 80%;
-            mask-image: linear-gradient(to bottom, black 90%, transparent);
+        /* 입력창 & 선택창 */
+        input, textarea, select {
+            background: #000; border: 1px solid #444; color: #fff;
+            padding: 10px; margin-bottom: 10px; border-radius: 0; width: 100%; box-sizing: border-box;
         }
-        .archive-card {
-            background: rgba(139, 90, 43, 0.1); margin-bottom: 12px;
-            padding: 12px; border: 1px solid rgba(139, 90, 43, 0.3);
-            border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-            transition: 0.3s;
-        }
-        .archive-card:hover { transform: scale(1.02); background: rgba(139, 90, 43, 0.2); }
-        .mini-pfp { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--magic-gold); object-fit: cover; }
+        input:focus { border-color: var(--g-red); outline: none; }
 
-        /* 캐릭터 포털: 중앙 전시 */
-        .hero-portal {
-            position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+        /* 특성 선택 칩 */
+        .trait-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .trait-chip {
+            padding: 5px 10px; border: 1px solid var(--g-gold); font-size: 0.8rem;
+            cursor: pointer; transition: 0.2s;
         }
-        .hero-main-img { 
-            max-width: 90%; max-height: 80%; filter: drop-shadow(0 0 20px white);
-            transition: 0.5s; object-fit: contain;
-        }
+        .trait-chip.selected { background: var(--g-red); color: white; border-color: white; }
 
-        /* 입력창 스타일: 잉크병 감성 */
-        .stat-group { margin-bottom: 15px; }
-        .stat-group label { display: block; font-weight: bold; color: #5d4037; margin-bottom: 5px; }
-        input, select, textarea {
-            width: 100%; background: rgba(0,0,0,0.05); border: none;
-            border-bottom: 2px solid #8b5a2b; padding: 8px;
-            font-family: 'Gaegu'; font-size: 1.1rem; box-sizing: border-box;
+        /* 리스트 아이템 */
+        .hero-card {
+            background: rgba(40, 0, 0, 0.3); border: 1px solid #333;
+            padding: 10px; margin-bottom: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;
         }
-        input:focus { outline: none; border-bottom-color: var(--magic-gold); background: rgba(255,255,255,0.3); }
+        .hero-card:hover { border-color: var(--g-gold); background: rgba(80, 0, 0, 0.4); }
+        .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
 
-        /* 버튼: 마법 보석 느낌 */
-        .btn-fairytale {
-            background: #5d4037; color: var(--paper-light);
-            border: 2px solid var(--magic-gold); padding: 12px;
-            cursor: pointer; width: 100%; font-size: 1.2rem;
-            border-radius: 4px; box-shadow: 0 4px 0 #3e2723;
-            transition: 0.1s;
+        /* 로그아웃 버튼 */
+        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.8rem; background: none; border: 1px solid var(--g-red); color: var(--g-red); cursor: pointer; }
+
+        #main-view-img { 
+            max-height: 80%; filter: drop-shadow(0 0 30px var(--g-red)); 
+            animation: float 4s ease-in-out infinite; 
         }
-        .btn-fairytale:active { transform: translateY(4px); box-shadow: none; }
-        .btn-fairytale:hover { filter: brightness(1.2); }
-
-        /* 특성 태그: 나뭇잎 느낌 */
-        .leaf-tag {
-            display: inline-block; padding: 4px 12px; margin: 3px;
-            background: #d4e157; border-radius: 15px 0 15px 0;
-            border: 1px solid #7b8d42; font-size: 0.9rem; cursor: pointer;
-        }
-        .leaf-tag.active { background: #689f38; color: white; box-shadow: 0 0 10px #689f38; }
-
-        /* 비밀 기록 구역 */
-        .secret-area {
-            background: rgba(183, 28, 28, 0.05); border: 1px dashed #b71c1c;
-            padding: 10px; border-radius: 5px; margin-top: 10px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     </style>
 </head>
-<body onclick="createMagicSpark(event)">
-    <div class="sepia-overlay"></div>
-    <canvas id="fairy-canvas"></canvas>
+<body>
 
-    <div id="login-screen" class="screen active">
-        <div class="book-panel" style="width: 350px; padding: 40px; text-align: center;">
-            <h1 style="font-family: 'Nanum Myeongjo'; color: #3e2723;">📖 기록자의 숲</h1>
-            <p>모험가님의 인장을 찍어주세요</p>
-            <input type="email" id="login-email" placeholder="이메일 주소">
-            <input type="password" id="login-pw" placeholder="비밀번호">
-            <button class="btn-fairytale" style="margin-top: 20px;" onclick="handleAuth('login')">기록소 입장</button>
-            <p style="font-size: 0.8rem; margin-top: 15px; cursor: pointer; color: #8b5a2b;" onclick="handleAuth('signup')">새로운 모험가 등록(회원가입)</p>
-        </div>
+    <div id="auth-screen" class="gothic-panel" style="width: 320px;">
+        <h2 style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
+        <input type="email" id="email" placeholder="SOUL ID">
+        <input type="password" id="pw" placeholder="PASSWORD">
+        <button class="g-btn" onclick="handleAuth('login')">ASCEND</button>
+        <button class="g-btn" style="margin-top: 10px; font-size: 0.7rem;" onclick="handleAuth('signup')">CREATE NEW SOUL</button>
     </div>
 
-    <div id="main-screen" class="screen">
-        <div class="main-container">
-            <div class="book-panel">
-                <div style="padding: 15px; border-bottom: 2px solid #8b5a2b; background: rgba(0,0,0,0.03);">
-                    <h2 style="margin:0; font-family: 'Nanum Myeongjo'; font-size: 1.2rem;">📜 동료들의 일지</h2>
-                </div>
-                <div class="scroll-list" id="hero-list">
-                    </div>
-                <div style="padding: 10px;">
-                    <button class="btn-fairytale" style="font-size: 1rem;" onclick="resetForm()">+ 새 페이지 작성</button>
-                </div>
+    <div id="main-app" class="app-grid">
+        <div class="gothic-panel">
+            <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
+            <h3 style="font-family: 'Cinzel Decorative';">ARCHIVES</h3>
+            <div id="hero-list" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
+            <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="resetForm()">NEW SACRIFICE</button>
+        </div>
+
+        <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+            <img id="main-view-img" src="" style="display: none;">
+            <div id="upload-zone" style="text-align: center;">
+                <p>NO SOUL SUMMONED</p>
+                <button class="g-btn" onclick="document.getElementById('file-in').click()">UPLOAD IMAGE</button>
+                <input type="file" id="file-in" hidden onchange="previewHero(event)">
             </div>
+        </div>
 
-            <div class="hero-portal">
-                <img id="main-display-img" class="hero-main-img" src="" style="display: none;">
-                <div id="empty-msg" style="text-align: center;">
-                    <div style="font-size: 5rem; opacity: 0.3;">✨</div>
-                    <p>초상화를 불러오려면 아래 버튼을 누르세요</p>
-                    <button class="btn-fairytale" onclick="document.getElementById('file-input').click()">이미지 선택</button>
-                    <input type="file" id="file-input" hidden onchange="previewHero(event)">
-                </div>
-            </div>
-
-            <div class="book-panel" style="padding: 25px; overflow-y: auto;">
-                <h2 id="form-title" style="margin-top: 0; font-family: 'Nanum Myeongjo'; border-bottom: 2px solid #8b5a2b;">CHARACTER LOG</h2>
-                
-                <div class="stat-group">
-                    <label>이름</label>
-                    <input type="text" id="nickname" placeholder="무엇이라 부를까요?">
-                </div>
-
+        <div class="gothic-panel">
+            <h3 style="font-family: 'Cinzel Decorative';">BLOOD CONTRACT</h3>
+            <div style="overflow-y: auto; flex: 1; padding-right: 5px;">
+                <label>NAME</label><input type="text" id="nickname">
                 <div style="display: flex; gap: 10px;">
-                    <div class="stat-group" style="flex:1;">
-                        <label>종족</label>
-                        <select id="race">
-                            <option>인간</option><option>엘프</option><option>수인</option><option>드워프</option><option>정령</option>
-                        </select>
+                    <div style="flex:1;"><label>GENDER</label>
+                        <select id="gender"><option>MALE</option><option>FEMALE</option><option>VOID</option></select>
                     </div>
-                    <div class="stat-group" style="flex:1;">
-                        <label>성별</label>
-                        <select id="gender"><option>남성</option><option>여성</option><option>기타</option></select>
-                    </div>
+                    <div style="flex:1;"><label>LEVEL</label><input type="number" id="level" value="1"></div>
+                </div>
+                
+                <label>TRAITS (SELECT)</label>
+                <div class="trait-container" id="trait-box">
+                    <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
+                    <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
+                    <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
+                    <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
                 </div>
 
-                <div class="stat-group">
-                    <label>특성</label>
-                    <div id="traits">
-                        <span class="leaf-tag" onclick="this.classList.toggle('active')">다정함</span>
-                        <span class="leaf-tag" onclick="this.classList.toggle('active')">용맹함</span>
-                        <span class="leaf-tag" onclick="this.classList.toggle('active')">지혜로움</span>
-                        <span class="leaf-tag" onclick="addCustomTrait()">+</span>
-                    </div>
-                </div>
-
-                <div class="stat-group">
-                    <label>이야기 (Bio)</label>
-                    <textarea id="bio" rows="4" placeholder="어떤 모험을 거쳐왔나요?"></textarea>
-                </div>
-
-                <div class="secret-area">
-                    <label style="color: #b71c1c; font-size: 0.9rem;">🔒 비밀 기록 (작성자/관리자 전용)</label>
-                    <textarea id="note" style="border-bottom-color: #b71c1c;"></textarea>
-                </div>
-
-                <div id="btn-ctrl" style="margin-top: 20px;">
-                    <button id="save-btn" class="btn-fairytale" onclick="saveToBook()">기록 저장하기</button>
-                    <div id="edit-ctrl" style="display: none; gap: 8px;">
-                        <button class="btn-fairytale" style="flex:1;" onclick="updateBook()">수정</button>
-                        <button class="btn-fairytale" style="flex:1; background: #b71c1c;" onclick="deleteFromBook()">삭제</button>
-                    </div>
+                <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
+                <label>FORBIDDEN NOTE (SECRET)</label><textarea id="note" rows="3"></textarea>
+            </div>
+            
+            <div id="btn-group" style="margin-top: 15px;">
+                <button id="save-btn" class="g-btn" style="width: 100%;" onclick="saveData()">SEAL CONTRACT</button>
+                <div id="edit-group" style="display: none; gap: 10px;">
+                    <button class="g-btn" style="flex: 1; background: #004d40;" onclick="updateData()">UPDATE</button>
+                    <button class="g-btn" style="flex: 1; background: #4d0000;" onclick="deleteData()">ERASE</button>
                 </div>
             </div>
         </div>
@@ -205,7 +142,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -223,119 +160,120 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let userSession = null;
+        let currentUser = null;
         let selectedFile = null;
         let currentDocId = null;
 
-        // --- 기능 복구: 로그인 ---
+        // --- 1. 인증 기능 ---
         window.handleAuth = async (type) => {
-            const email = document.getElementById('login-email').value;
-            const pw = document.getElementById('login-pw').value;
-            if(!email || !pw) return alert("이메일과 비밀번호를 적어주세요!");
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('pw').value;
             try {
                 if(type === 'login') await signInWithEmailAndPassword(auth, email, pw);
                 else await createUserWithEmailAndPassword(auth, email, pw);
-            } catch(e) { alert(e.message); }
+            } catch(e) { alert("Access Denied: " + e.message); }
         };
+
+        window.handleLogout = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             if(user) {
-                userSession = user;
-                document.getElementById('login-screen').classList.remove('active');
-                document.getElementById('main-screen').classList.add('active');
-                loadArchives();
+                currentUser = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('active');
+                loadList();
             } else {
-                document.getElementById('login-screen').classList.add('active');
+                document.getElementById('auth-screen').style.display = 'block';
+                document.getElementById('main-app').classList.remove('active');
             }
         });
 
-        // --- 기능 복구: 이미지 미리보기 ---
+        // --- 2. 데이터 관리 (CRUD) ---
+        window.toggleTrait = (el) => el.classList.toggle('selected');
+
         window.previewHero = (e) => {
             selectedFile = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const img = document.getElementById('main-display-img');
-                img.src = reader.result; img.style.display = 'block';
-                document.getElementById('empty-msg').style.display = 'none';
-            };
-            reader.readAsDataURL(selectedFile);
+            document.getElementById('main-view-img').src = URL.createObjectURL(selectedFile);
+            document.getElementById('main-view-img').style.display = 'block';
+            document.getElementById('upload-zone').style.display = 'none';
         };
 
-        // --- 기능 복구: 데이터 저장 (Create) ---
-        window.saveToBook = async () => {
+        window.saveData = async () => {
+            if(!selectedFile) return alert("Upload an image first!");
             const name = document.getElementById('nickname').value;
-            if(!name) return alert("이름을 입력하세요!");
-
-            let url = "https://via.placeholder.com/400?text=No+Portrait";
-            if(selectedFile) {
-                const sRef = ref(storage, `heroes/${Date.now()}`);
-                await uploadBytes(sRef, selectedFile);
-                url = await getDownloadURL(sRef);
-            }
+            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
+            
+            const sRef = ref(storage, `gothic/${Date.now()}`);
+            await uploadBytes(sRef, selectedFile);
+            const url = await getDownloadURL(sRef);
 
             await addDoc(collection(db, "characters"), {
-                nickname: name, race: document.getElementById('race').value,
+                nickname: name,
                 gender: document.getElementById('gender').value,
+                level: document.getElementById('level').value,
+                traits: traits,
                 bio: document.getElementById('bio').value,
                 note: document.getElementById('note').value,
-                traits: [...document.querySelectorAll('.leaf-tag.active')].map(t => t.innerText),
-                imageUrl: url, author: userSession.uid, time: new Date()
+                imageUrl: url,
+                author: currentUser.uid,
+                time: new Date()
             });
-            alert("기록을 남겼습니다."); resetForm();
+            alert("Contract Sealed.");
+            resetForm();
         };
 
-        // --- 기능 복구: 실시간 리스트 (Read) ---
-        function loadArchives() {
+        function loadList() {
             onSnapshot(query(collection(db, "characters"), orderBy("time", "desc")), (snap) => {
                 const list = document.getElementById('hero-list');
                 list.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
                     const div = document.createElement('div');
-                    div.className = "archive-card";
-                    div.innerHTML = `<img src="${data.imageUrl}" class="mini-pfp">
-                                    <div><b>${data.nickname}</b><br><small>${data.race} / ${data.gender}</small></div>`;
+                    div.className = "hero-card";
+                    div.innerHTML = `<img src="${data.imageUrl}"> <div><b>${data.nickname}</b><br><small>${data.gender} / Lv.${data.level}</small></div>`;
                     div.onclick = () => showDetail(d.id, data);
                     list.appendChild(div);
                 });
             });
         }
 
-        // --- 기능 복구: 상세 보기 & 권한 분기 ---
         function showDetail(id, data) {
             currentDocId = id;
             document.getElementById('nickname').value = data.nickname;
-            document.getElementById('race').value = data.race;
             document.getElementById('gender').value = data.gender;
+            document.getElementById('level').value = data.level;
             document.getElementById('bio').value = data.bio;
             document.getElementById('note').value = data.note;
-            document.getElementById('main-display-img').src = data.imageUrl;
-            document.getElementById('main-display-img').style.display = 'block';
-            document.getElementById('empty-msg').style.display = 'none';
+            document.getElementById('main-view-img').src = data.imageUrl;
+            document.getElementById('main-view-img').style.display = 'block';
+            document.getElementById('upload-zone').style.display = 'none';
             
-            document.querySelectorAll('.leaf-tag').forEach(t => {
-                t.classList.toggle('active', data.traits.includes(t.innerText));
+            // 특성 복구
+            document.querySelectorAll('.trait-chip').forEach(chip => {
+                chip.classList.toggle('selected', data.traits.includes(chip.innerText));
             });
 
-            const isOwner = userSession.uid === data.author;
+            const isOwner = currentUser.uid === data.author;
             document.getElementById('save-btn').style.display = 'none';
-            document.getElementById('edit-ctrl').style.display = isOwner ? 'flex' : 'none';
-            document.getElementById('form-title').innerText = isOwner ? "내 기록 수정" : "기록 열람";
+            document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
         }
 
-        window.updateBook = async () => {
-            await updateDoc(doc(db, "characters", currentDocId), {
+        window.updateData = async () => {
+            const docRef = doc(db, "characters", currentDocId);
+            await updateDoc(docRef, {
                 nickname: document.getElementById('nickname').value,
-                race: document.getElementById('race').value,
+                gender: document.getElementById('gender').value,
+                level: document.getElementById('level').value,
+                traits: [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText),
                 bio: document.getElementById('bio').value,
-                note: document.getElementById('note').value,
-                traits: [...document.querySelectorAll('.leaf-tag.active')].map(t => t.innerText)
+                note: document.getElementById('note').value
             });
-            alert("수정되었습니다.");
+            alert("Record Altered.");
+            resetForm();
         };
 
-        window.deleteFromBook = async () => {
-            if(confirm("이 기록을 영원히 삭제하시겠습니까?")) {
+        window.deleteData = async () => {
+            if(confirm("Erase this soul forever?")) {
                 await deleteDoc(doc(db, "characters", currentDocId));
                 resetForm();
             }
@@ -343,44 +281,13 @@
 
         window.resetForm = () => {
             currentDocId = null;
-            document.getElementById('main-display-img').style.display = 'none';
-            document.getElementById('empty-msg').style.display = 'block';
+            document.getElementById('main-view-img').style.display = 'none';
+            document.getElementById('upload-zone').style.display = 'block';
             document.getElementById('save-btn').style.display = 'block';
-            document.getElementById('edit-ctrl').style.display = 'none';
+            document.getElementById('edit-group').style.display = 'none';
             ['nickname', 'bio', 'note'].forEach(id => document.getElementById(id).value = "");
-            document.querySelectorAll('.leaf-tag').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.trait-chip').forEach(c => c.classList.remove('selected'));
         };
-
-        // --- 효과: 마법 반짝이 (Canvas) ---
-        const canvas = document.getElementById('fairy-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        let sparks = [];
-        class Spark {
-            constructor(x, y) {
-                this.x = x; this.y = y;
-                this.size = Math.random() * 5 + 1;
-                this.vX = Math.random() * 2 - 1;
-                this.vY = Math.random() * 2 - 1;
-                this.life = 1;
-            }
-            update() { this.x += this.vX; this.y += this.vY; this.life -= 0.01; }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = "#fffce0";
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-            }
-        }
-        window.createMagicSpark = (e) => {
-            for(let i=0; i<8; i++) sparks.push(new Spark(e.clientX, e.clientY));
-        };
-        function anim() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            sparks = sparks.filter(s => s.life > 0);
-            sparks.forEach(s => { s.update(); s.draw(); });
-            requestAnimationFrame(anim);
-        }
-        anim();
     </script>
 </body>
 </html>
