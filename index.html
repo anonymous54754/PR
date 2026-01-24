@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>나만의 MMORPG 월드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- 🎨 게임 감성 디자인 (CSS) --- */
+        :root {
+            --gold: #d4af37;
+            --dark-bg: rgba(20, 20, 25, 0.85);
+            --soft-pink: #f8bbd0;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* 몽글몽글한 배경 애니메이션 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .screen {
+            display: none;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            position: absolute;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .active { display: flex; }
+
+        /* 공통 버튼 스타일 */
+        .btn-game {
+            background: linear-gradient(to bottom, #7b5e41, #4a3520);
+            border: 2px solid var(--gold);
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+            text-shadow: 1px 1px 2px black;
+        }
+        .btn-game:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+        /* --- 🔐 로그인 & 회원가입 창 --- */
+        .auth-box {
+            background: var(--dark-bg);
+            padding: 30px;
+            border: 3px solid var(--gold);
+            border-radius: 15px;
+            text-align: center;
+            width: 350px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .input-group { position: relative; margin: 15px 0; }
+        .input-group input {
+            width: 90%; padding: 10px;
+            background: #222; border: 1px solid #555; color: white;
+        }
+        .eye-icon {
+            position: absolute; right: 25px; top: 10px; cursor: pointer;
+        }
+
+        /* --- 👤 성별 선택창 --- */
+        .gender-select {
+            display: flex; gap: 50px;
+        }
+        .gender-card {
+            cursor: pointer; text-align: center; transition: 0.3s;
+        }
+        .gender-card:hover { transform: scale(1.1); color: var(--gold); }
+        .gender-img {
+            width: 150px; height: 250px;
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed var(--gold);
+            mask-size: contain; mask-repeat: no-repeat;
+        }
+
+        /* --- ⚔️ 메인 커스터마이징 화면 --- */
+        .main-container {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            width: 100%; height: 90%;
+            padding: 20px;
+        }
+
+        /* 왼쪽: 최근 유저 */
+        .sidebar-left {
+            background: var(--dark-bg);
+            border-right: 2px solid var(--gold);
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .user-mini-card {
+            display: flex; align-items: center;
+            margin-bottom: 15px; padding: 5px;
+            border-bottom: 1px solid #444; cursor: pointer;
+        }
+        .mini-img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; background: #555; }
+
+        /* 가운데: 캐릭터 미리보기 */
+        .preview-area {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            animation: float 4s ease-in-out infinite;
+        }
+        .char-frame {
+            width: 300px; height: 450px;
+            border: 4px double var(--gold);
+            background: rgba(255,255,255,0.05);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative;
+        }
+        #char-img-display { width: 100%; height: 100%; object-fit: contain; }
+
+        /* 오른쪽: 상세 정보 */
+        .sidebar-right {
+            background: var(--dark-bg);
+            border-left: 2px solid var(--gold);
+            padding: 15px;
+        }
+        .level-control { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .trait-tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
+        .tag { background: #444; padding: 5px 10px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+        .tag.active { background: var(--gold); color: black; }
+
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="screen active">
+        <div class="auth-box">
+            <h2 style="color:var(--gold)">GAME START</h2>
+            <div class="input-group">
+                <input type="email" id="login-email" placeholder="이메일 아이디">
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-pw" placeholder="비밀번호">
+                <span class="eye-icon" onclick="togglePw('login-pw')">👁️</span>
+            </div>
+            <button class="btn-game" onclick="handleLogin()">접속하기</button>
+            <p style="font-size: 12px; margin-top: 15px; cursor: pointer;" onclick="showScreen('signup-screen')">신규 유저 가입</p>
+        </div>
+    </div>
+
+    <div id="signup-screen" class="screen">
+        <div class="auth-box" style="border-color: var(--soft-pink);">
+            <h2 style="color:var(--soft-pink)">신규 모험가 등록</h2>
+            <div class="input-group"><input type="email" id="signup-email" placeholder="사용할 이메일"></div>
+            <div class="input-group">
+                <input type="password" id="signup-pw" placeholder="비밀번호">
+                <span class="eye-icon" onclick="togglePw('signup-pw')">👁️</span>
+            </div>
+            <button class="btn-game" style="background: #6a1b9a;" onclick="handleSignup()">가입 완료</button>
+            <button class="btn-game" style="margin-top:10px" onclick="showScreen('login-screen')">돌아가기</button>
+        </div>
+    </div>
+
+    <div id="gender-screen" class="screen">
+        <div style="text-align: center;">
+            <h1 style="text-shadow: 2px 2px 5px black;">모험의 시작: 성별을 선택하세요</h1>
+            <div class="gender-select">
+                <div class="gender-card" onclick="selectGender('남성')">
+                    <div class="gender-img" style="background-image: url('https://cdn-icons-png.flaticon.com/512/2822/2822458.png');"></div>
+                    <h3>MALE</h3>
+                </div>
+                <div class="gender-card" onclick="selectGender('여성')">
+                    <div class="gender-img" style="background-image: url('https://cdn-icons-png.flaticon.com/512/2822/2822464.png');"></div>
+                    <h3>FEMALE</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-screen" class="screen">
+        <div class="main-container">
+            <div class="sidebar-left">
+                <h3>최근 접속자</h3>
+                <div id="recent-users-list">
+                    </div>
+            </div>
+
+            <div class="preview-area">
+                <div class="char-frame">
+                    <img id="char-img-display" src="" style="display:none;">
+                    <div id="upload-placeholder">
+                        <button class="btn-game" onclick="document.getElementById('file-input').click()">➕ 캐릭터 생성</button>
+                        <p style="font-size: 12px; color: #aaa;">사진을 업로드하세요</p>
+                    </div>
+                    <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(event)">
+                </div>
+            </div>
+
+            <div class="sidebar-right">
+                <div class="level-control">
+                    <span>LV.</span>
+                    <button class="btn-game" onclick="changeLv(-1)">◀</button>
+                    <span id="lv-val" style="font-size: 24px; color: var(--gold);">1</span>
+                    <button class="btn-game" onclick="changeLv(1)">▶</button>
+                </div>
+                
+                <hr border="1" color="#d4af37">
+                
+                <label>닉네임</label>
+                <input type="text" id="nickname" placeholder="닉네임 입력..." style="width:100%; padding:8px; margin:10px 0; background:#111; border:1px solid var(--gold); color:white;">
+
+                <label>종족</label>
+                <select id="race" style="width:100%; padding:8px; margin:10px 0; background:#111; border:1px solid var(--gold); color:white;">
+                    <option>인간</option>
+                    <option>엘프</option>
+                    <option>드워프</option>
+                </select>
+
+                <label>특성</label>
+                <div class="trait-tags" id="trait-container">
+                    <span class="tag" onclick="toggleTag(this)">까칠함</span>
+                    <span class="tag" onclick="toggleTag(this)">다정함</span>
+                    <span class="tag" onclick="toggleTag(this)">재능있음</span>
+                    <span class="tag" onclick="addCustomTag()">+ 기타</span>
+                </div>
+
+                <label>소개글</label>
+                <textarea id="bio" rows="4" style="width:100%; background:#111; color:white; border:1px solid var(--gold);"></textarea>
+
+                <button class="btn-game" style="width:100%; margin-top:20px; font-size:18px;" onclick="saveCharacter()">캐릭터 저장하기</button>
+                <button class="btn-game" style="width:100%; margin-top:10px; background: #c62828;" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // 🚩 파이어베이스 설정값 (당신의 파이어베이스 콘솔에서 복사해서 여기에 넣으세요!)
+ const firebaseConfig = {
+    apiKey: "AIzaSyB9zSYPDBJRt2oTIcbEa8kxZplCvSPazUU",
+    authDomain: "prof-f0cd2.firebaseapp.com",
+    projectId: "prof-f0cd2",
+    storageBucket: "prof-f0cd2.firebasestorage.app",
+    messagingSenderId: "966274708581",
+    appId: "1:966274708581:web:1f77eae3bb147c0bce028c",
+    measurementId: "G-JKZSYVJQBT"
+  };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // --- ⚙️ 기능 자바스크립트 ---
+
+        window.showScreen = (id) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        window.togglePw = (id) => {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        };
+
+        // 회원가입
+        window.handleSignup = async () => {
+            const email = document.getElementById('signup-email').value;
+            const pw = document.getElementById('signup-pw').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pw);
+                alert("모험가가 되신 것을 환영합니다!");
+                showScreen('gender-screen');
+            } catch(e) { alert(e.message); }
+        };
+
+        // 로그인
+        window.handleLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pw = document.getElementById('login-pw').value;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pw);
+                const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+                
+                if(userDoc.exists() && userDoc.data().status === 'deleted') {
+                    alert("탈퇴한 회원입니다.");
+                    await signOut(auth);
+                    return;
+                }
+                
+                showScreen('main-screen');
+                loadRecentUsers();
+            } catch(e) { alert("로그인 실패: 정보를 확인하세요."); }
+        };
+
+        // 레벨 조절
+        let currentLv = 1;
+        window.changeLv = (amt) => {
+            currentLv = Math.max(1, Math.min(500, currentLv + amt));
+            document.getElementById('lv-val').innerText = currentLv;
+        };
+
+        // 태그 토글
+        window.toggleTag = (el) => el.classList.toggle('active');
+        window.addCustomTag = () => {
+            const tag = prompt("새로운 특성을 입력하세요:");
+            if(tag) {
+                const span = document.createElement('span');
+                span.className = 'tag active';
+                span.innerText = tag;
+                span.onclick = () => toggleTag(span);
+                document.getElementById('trait-container').insertBefore(span, document.getElementById('trait-container').lastElementChild);
+            }
+        };
+
+        // 이미지 미리보기
+        let selectedFile;
+        window.previewImage = (e) => {
+            selectedFile = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                document.getElementById('char-img-display').src = reader.result;
+                document.getElementById('char-img-display').style.display = 'block';
+                document.getElementById('upload-placeholder').style.display = 'none';
+            };
+            reader.readAsDataURL(selectedFile);
+        };
+
+        // 데이터 저장
+        window.saveCharacter = async () => {
+            const user = auth.currentUser;
+            if(!user) return;
+
+            let imageUrl = "";
+            if(selectedFile) {
+                const sRef = ref(storage, `chars/${user.uid}`);
+                await uploadBytes(sRef, selectedFile);
+                imageUrl = await getDownloadURL(sRef);
+            }
+
+            const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
+
+            await setDoc(doc(db, "users", user.uid), {
+                nickname: document.getElementById('nickname').value,
+                level: currentLv,
+                race: document.getElementById('race').value,
+                traits: traits,
+                bio: document.getElementById('bio').value,
+                imageUrl: imageUrl,
+                updatedAt: new Date()
+            }, { merge: true });
+
+            alert("캐릭터 정보가 저장되었습니다!");
+        };
+
+        // 최근 유저 불러오기 (실시간)
+        function loadRecentUsers() {
+            const q = query(collection(db, "users"), orderBy("updatedAt", "desc"), limit(5));
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('recent-users-list');
+                list.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "user-mini-card";
+                    card.innerHTML = `
+                        <img class="mini-img" src="${data.imageUrl || 'https://via.placeholder.com/40'}">
+                        <div>
+                            <div style="font-size:14px; font-weight:bold;">${data.nickname || '이름 없음'}</div>
+                            <div style="font-size:11px; color:var(--gold);">Lv.${data.level || 1} ${data.race || ''}</div>
+                        </div>
+                    `;
+                    card.onclick = () => alert(`${data.nickname}의 소개: ${data.bio}`);
+                    list.appendChild(card);
+                });
+                
+                // 빈 자리 채우기
+                for(let i=snapshot.size; i<5; i++) {
+                    list.innerHTML += `<div class="user-mini-card" style="opacity:0.5;">
+                        <div class="mini-img"></div><div>비어있음</div>
+                    </div>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
