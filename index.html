@@ -2,13 +2,33 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Gothic Abyss Archive - Final Fix</title>
+    <title>Gothic Abyss Archive - Luxury UI</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --g-red: rgba(180, 0, 0, 0.7);
             --g-gold: #c5a059;
             --g-black: #050505;
+            --g-scroll-bg: #121212;
+        }
+
+        /* ⭐️ 빤짝빤짝 고딕풍 커스텀 스크롤바 (전체 적용) */
+        ::-webkit-scrollbar {
+            width: 8px; /* 너무 굵지 않게 */
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--g-scroll-bg);
+            border-left: 1px solid #222;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #8a6d3b, var(--g-gold), #8a6d3b);
+            border: 1px solid #000;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); /* 은은한 황금빛 광채 */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--g-gold), #fff, var(--g-gold)); /* 호버 시 더 밝게 빛남 */
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.8);
         }
 
         body {
@@ -51,15 +71,27 @@
             background: linear-gradient(135deg, #300, #000); color: var(--g-gold); border: 1px solid var(--g-gold);
             padding: 12px; font-family: 'Cinzel Decorative'; cursor: pointer;
             clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%); margin-bottom: 5px;
+            transition: 0.3s;
         }
         .g-btn:hover { background: var(--g-gold); color: #000; box-shadow: 0 0 15px var(--g-gold); }
-        input, textarea, select { background: #111; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        
+        input, textarea, select { 
+            background: #111; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
+            font-family: 'Noto Serif KR', serif;
+        }
         
         /* 특성 칩 */
-        .trait-chip { padding: 4px 10px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 2px; display: inline-block; transition: 0.3s; }
+        .trait-chip { 
+            padding: 4px 10px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; margin: 2px; 
+            display: inline-block; transition: 0.3s; background: rgba(0,0,0,0.5);
+        }
         .trait-chip.selected { background: #800; color: #fff; border-color: #f00; box-shadow: 0 0 8px #800; }
 
-        .hero-card { background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 10px; margin-bottom: 10px; cursor: pointer; display: flex; gap: 15px; align-items: center; }
+        .hero-card { 
+            background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 10px; margin-bottom: 10px; 
+            cursor: pointer; display: flex; gap: 15px; align-items: center; transition: 0.2s;
+        }
+        .hero-card:hover { border-color: var(--g-gold); background: rgba(100,0,0,0.1); }
         .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
         .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
     </style>
@@ -79,7 +111,7 @@
         <div class="gothic-panel">
             <button class="logout-btn" id="logout-trigger">LOGOUT</button>
             <h3 style="font-family: 'Cinzel Decorative';">ARCHIVES</h3>
-            <div id="hero-list" style="overflow-y: auto; flex: 1;"></div>
+            <div id="hero-list" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
             <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="location.reload()">NEW RECORD</button>
         </div>
 
@@ -89,13 +121,13 @@
                 <p style="letter-spacing: 5px; font-size: 1.5rem; opacity: 0.4;">VOID</p>
                 <button class="g-btn" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
             </div>
-            <div class="re-summon-btn" id="re-summon-btn" style="display:none; color:var(--g-gold); cursor:pointer; font-size:0.8rem;" onclick="document.getElementById('file-in').click()">[ RE-SUMMON ]</div>
+            <div class="re-summon-btn" id="re-summon-btn" style="display:none; color:var(--g-gold); cursor:pointer; font-size:0.8rem; margin-bottom: 20px;" onclick="document.getElementById('file-in').click()">[ RE-SUMMON ]</div>
             <input type="file" id="file-in" hidden onchange="previewHero(event)" accept="image/*">
         </div>
 
         <div class="gothic-panel">
             <h3 style="font-family: 'Cinzel Decorative';">SOUL CONTRACT</h3>
-            <div style="overflow-y: auto; flex: 1; padding-right: 5px;">
+            <div style="overflow-y: auto; flex: 1; padding-right: 10px;">
                 <label>NAME</label><input type="text" id="nickname">
                 
                 <div style="display: flex; gap: 10px;">
@@ -131,6 +163,7 @@
     </div>
 
     <script type="module">
+        // Firebase 및 파티클 로직 (이전과 동일, 안정성 유지)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -162,13 +195,13 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height + canvas.height;
                 this.size = Math.random() * 2;
-                this.speedY = Math.random() * 0.5 + 0.2;
+                this.speedY = Math.random() * 0.4 + 0.2;
                 this.opacity = Math.random() * 0.5;
             }
             update() { this.y -= this.speedY; if (this.y < -10) this.init(); }
             draw() { ctx.fillStyle = `rgba(180, 0, 0, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         }
-        for (let i = 0; i < 100; i++) particles.push(new Particle());
+        for (let i = 0; i < 80; i++) particles.push(new Particle());
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
@@ -177,7 +210,7 @@
 
         document.getElementById('login-trigger').onclick = async () => {
             const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
-            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert(e.message); }
+            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert("ID/PW를 확인하세요."); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -186,7 +219,6 @@
         });
 
         window.toggleTrait = (el) => el.classList.toggle('selected');
-        
         window.previewHero = (e) => {
             selectedFile = e.target.files[0]; if (!selectedFile) return;
             document.getElementById('main-view-img').src = URL.createObjectURL(selectedFile);
@@ -196,7 +228,7 @@
         };
 
         window.saveData = async () => {
-            if(!selectedFile) return alert("이미지 필수");
+            if(!selectedFile) return alert("이미지를 먼저 소환하세요.");
             const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
             const sRef = ref(storage, `souls/${Date.now()}`);
             try {
@@ -211,7 +243,7 @@
                     imageUrl: url, author: currentUser.uid, time: new Date()
                 });
                 location.reload();
-            } catch(e) { alert(e.message); }
+            } catch(e) { alert("저장 실패"); }
         };
 
         function loadList() {
@@ -226,7 +258,6 @@
             });
         }
 
-        // ⭐️ 특성 오류 수정 포인트: 기존 칩들을 돌면서 데이터와 대조하여 selected 클래스 추가
         function showDetail(id, data) {
             currentDocId = id;
             document.getElementById('nickname').value = data.nickname;
@@ -238,18 +269,15 @@
             document.getElementById('main-view-img').src = data.imageUrl;
             document.getElementById('main-view-img').style.display = 'block';
             document.getElementById('upload-zone').style.display = 'none';
+            document.getElementById('re-summon-btn').style.display = 'block';
 
-            // 모든 칩에서 일단 selected 제거 후, 데이터에 있는 것만 다시 추가
             const chips = document.querySelectorAll('.trait-chip');
             chips.forEach(chip => {
-                if (data.traits && data.traits.includes(chip.innerText)) {
-                    chip.classList.add('selected');
-                } else {
-                    chip.classList.remove('selected');
-                }
+                if (data.traits && data.traits.includes(chip.innerText)) chip.classList.add('selected');
+                else chip.classList.remove('selected');
             });
 
-            const isOwner = currentUser.uid === data.author;
+            const isOwner = currentUser && (currentUser.uid === data.author);
             document.getElementById('save-btn').style.display = 'none';
             document.getElementById('edit-group').style.display = isOwner ? 'flex' : 'none';
         }
@@ -266,7 +294,7 @@
             alert("수정 완료"); location.reload();
         };
 
-        window.deleteData = async () => { if(confirm("영혼을 말소합니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
+        window.deleteData = async () => { if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); } };
         document.getElementById('logout-trigger').onclick = () => signOut(auth);
     </script>
 </body>
