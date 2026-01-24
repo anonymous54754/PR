@@ -2,102 +2,129 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Gothic Abyss Archive - Silhouette Glow</title>
+    <title>Gothic Abyss Archive - Fixed UI</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+KR:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --g-red: #ff0000; /* 더 선명한 블러 광채를 위해 밝은 레드 */
-            --g-gold: #d4af37;
-            --g-black: #0a0a0a;
-            --g-inner: rgba(15, 5, 5, 0.95);
+            --g-red: rgba(150, 0, 0, 0.7);
+            --g-gold: #c5a059;
+            --g-black: #050505;
         }
 
         body {
             margin: 0; padding: 0; width: 100%; height: 100vh;
             font-family: 'Noto Serif KR', serif;
-            background: var(--g-black) url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
+            background: radial-gradient(circle at center, #1a0505 0%, var(--g-black) 90%);
             display: flex; justify-content: center; align-items: center;
-            color: var(--g-gold); overflow: hidden;
+            color: var(--g-gold); overflow: hidden; /* 전체 페이지 스크롤 방지 */
         }
 
         .gothic-panel {
-            background: var(--g-inner);
+            background: rgba(10, 0, 0, 0.98);
             border: 10px solid transparent;
             border-image: url('https://www.transparentpng.com/download/gold-frame/vCqE0E-gold-frame-free-download.png') 30 stretch;
-            box-shadow: 0 0 40px rgba(128, 0, 0, 0.6);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
             padding: 20px; display: flex; flex-direction: column; position: relative;
+            height: 100%; /* 패널 높이 고정 */
+            box-sizing: border-box;
         }
 
-        .app-grid { display: none; width: 98vw; height: 95vh; grid-template-columns: 320px 1fr 420px; gap: 20px; }
+        .app-grid { 
+            display: none; width: 98vw; height: 92vh; 
+            grid-template-columns: 320px 1fr 420px; gap: 20px; 
+            align-items: start;
+        }
         .active { display: grid; }
 
-        /* 중앙 스테이지 - 배경 제거 및 투명 설정 */
+        /* ⭐️ 중앙 스테이지: 이미지 개별 스크롤 설정 */
         .summon-stage {
-            display: flex; justify-content: center; align-items: center;
-            position: relative; width: 100%; height: 100%;
-            background: none; /* 배경 상자 제거 */
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; height: 100%;
+            overflow-y: auto; /* 세로 스크롤 허용 */
+            overflow-x: hidden;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--g-red) transparent;
         }
+        /* 스크롤바 디자인 (크롬/사파리) */
+        .summon-stage::-webkit-scrollbar { width: 5px; }
+        .summon-stage::-webkit-scrollbar-thumb { background: var(--g-red); }
 
-        /* ⭐️ 핵심: 실루엣 광채 필터 */
         #main-view-img { 
-            max-width: 90%; max-height: 85%;
-            object-fit: contain;
-            background: none; border: none; /* 배경/테두리 완전 제거 */
-            
-            /* 캐릭터 실루엣을 따라 광채가 퍼짐 (drop-shadow 중첩) */
-            filter: drop-shadow(0 0 10px var(--g-red)) 
-                    drop-shadow(0 0 25px rgba(255, 0, 0, 0.5));
-            
-            animation: float 4s ease-in-out infinite;
+            width: auto; max-width: 95%; /* 가로폭은 유지 */
+            height: auto; /* 높이는 원본 비율대로 (스크롤 발생) */
+            filter: drop-shadow(0 0 20px var(--g-red)) drop-shadow(0 0 50px rgba(0,0,0,0.9));
+            margin-bottom: 30px;
         }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .re-summon-btn {
+            margin-bottom: 20px; cursor: pointer; font-size: 0.8rem; letter-spacing: 2px;
+            color: var(--g-gold); opacity: 0.6; transition: 0.3s;
+        }
+        .re-summon-btn:hover { opacity: 1; text-shadow: 0 0 10px var(--g-gold); }
 
-        /* 버튼 및 기타 고딕 스타일 유지 */
+        /* 권장 사이즈 텍스트 */
+        .size-info { font-size: 0.65rem; color: #666; margin-bottom: 10px; font-style: italic; }
+
+        /* 버튼 및 입력창 스타일 */
         .g-btn {
-            background: linear-gradient(135deg, #400, #100);
+            background: linear-gradient(135deg, #300, #000);
             color: var(--g-gold); border: 1px solid var(--g-gold);
-            padding: 10px; font-family: 'Cinzel Decorative'; font-size: 0.9rem;
-            cursor: pointer; transition: 0.3s;
+            padding: 12px; font-family: 'Cinzel Decorative'; cursor: pointer;
             clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+            margin-bottom: 5px;
         }
-        .g-btn:hover { background: var(--g-gold); color: black; box-shadow: 0 0 15px var(--g-gold); }
+        .g-btn:hover { background: var(--g-gold); color: #000; box-shadow: 0 0 15px var(--g-gold); }
 
-        input, textarea, select { background: #000; border: 1px solid #444; color: #fff; padding: 8px; margin-bottom: 8px; width: 100%; }
-        .trait-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-        .trait-chip { padding: 4px 8px; border: 1px solid var(--g-gold); font-size: 0.75rem; cursor: pointer; }
-        .trait-chip.selected { background: var(--g-red); color: white; }
-        .hero-card { background: rgba(40, 0, 0, 0.2); border: 1px solid #333; padding: 8px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; cursor: pointer; }
-        .hero-card img { width: 45px; height: 45px; border: 1px solid var(--g-gold); object-fit: cover; }
-        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; color: var(--g-red); border: 1px solid var(--g-red); background: none; cursor: pointer; }
+        input, textarea, select {
+            background: #111; border: 1px solid #444; color: #fff;
+            padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
+        }
+
+        .trait-chip {
+            padding: 5px 12px; border: 1px solid var(--g-gold); font-size: 0.75rem;
+            cursor: pointer; margin: 3px; display: inline-block;
+        }
+        .trait-chip.selected { background: #800; color: #fff; }
+
+        .hero-card {
+            background: rgba(40, 0, 0, 0.2); border: 1px solid #333;
+            padding: 10px; margin-bottom: 10px; cursor: pointer; display: flex; gap: 15px; align-items: center;
+        }
+        .hero-card img { width: 50px; height: 50px; border: 1px solid var(--g-gold); object-fit: cover; }
+
+        .logout-btn { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; color: #800; border: 1px solid #800; background: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="gothic-panel" style="width: 300px;">
-        <h2 style="text-align: center; font-family: 'Cinzel Decorative';">ABYSS LOGIN</h2>
+    <div id="auth-screen" class="gothic-panel" style="width: 320px; height: auto;">
+        <h2 style="text-align: center; font-family: 'Cinzel Decorative'; letter-spacing: 3px;">ABYSS LOGIN</h2>
         <input type="email" id="email" placeholder="SOUL ID">
         <input type="password" id="pw" placeholder="PASSWORD">
-        <button class="g-btn" onclick="handleAuth('login')">ASCEND</button>
-        <button class="g-btn" style="margin-top: 10px; font-size: 0.7rem;" onclick="handleAuth('signup')">FORGE NEW SOUL</button>
+        <button class="g-btn" id="login-trigger" style="width: 100%;">ASCEND</button>
+        <button class="g-btn" id="signup-trigger" style="font-size: 0.7rem; margin-top: 10px; width: 100%;">FORGE NEW SOUL</button>
     </div>
 
     <div id="main-app" class="app-grid">
         <div class="gothic-panel">
-            <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
+            <button class="logout-btn" id="logout-trigger">LOGOUT</button>
             <h3 style="font-family: 'Cinzel Decorative';">ARCHIVES</h3>
             <div id="hero-list" style="overflow-y: auto; flex: 1;"></div>
-            <button class="g-btn" style="font-size: 0.75rem; margin-top: 10px;" onclick="resetForm()">NEW RECORD</button>
+            <button class="g-btn" style="font-size: 0.8rem; margin-top: 10px;" onclick="location.reload()">NEW RECORD</button>
         </div>
 
         <div class="summon-stage">
+            <div class="size-info">Recommended: PNG / 1200 x 1800px (Portrait)</div>
             <img id="main-view-img" src="" style="display: none;">
-            <div id="upload-zone" style="text-align: center;">
-                <p style="font-size: 1.2rem; letter-spacing: 2px;">AWAITING SUMMONS</p>
+            <div id="upload-zone" style="text-align: center; margin-top: 200px;">
+                <p style="letter-spacing: 5px; font-size: 1.5rem; opacity: 0.5;">VOID</p>
                 <button class="g-btn" onclick="document.getElementById('file-in').click()">SUMMON IMAGE</button>
-                <input type="file" id="file-in" hidden onchange="previewHero(event)" accept="image/*">
             </div>
+            <div class="re-summon-btn" id="re-summon-btn" style="display:none;" onclick="document.getElementById('file-in').click()">
+                [ RE-SUMMON SOUL ]
+            </div>
+            <input type="file" id="file-in" hidden onchange="previewHero(event)" accept="image/*">
         </div>
 
         <div class="gothic-panel">
@@ -110,24 +137,21 @@
                     </div>
                     <div style="flex:1;"><label>LEVEL</label><input type="number" id="level" value="1"></div>
                 </div>
-                
                 <label>TRAITS</label>
-                <div class="trait-container" id="trait-box">
+                <div id="trait-box" style="margin-bottom: 10px;">
                     <span class="trait-chip" onclick="toggleTrait(this)">용감함</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">광기</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">냉혈</span>
                     <span class="trait-chip" onclick="toggleTrait(this)">타락</span>
                 </div>
-                <div style="display: flex; gap: 5px; margin-bottom: 12px;">
-                    <input type="text" id="etc-trait" placeholder="Custom..." style="margin-bottom: 0; flex: 1; height: 32px;">
-                    <button class="g-btn" style="padding: 0 10px; font-size: 0.75rem; height: 32px;" onclick="addEtcTrait()">+</button>
+                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                    <input type="text" id="etc-trait" placeholder="Custom..." style="margin-bottom: 0; flex: 1; height: 35px;">
+                    <button class="g-btn" style="padding: 0 15px; height: 35px;" onclick="addEtcTrait()">+</button>
                 </div>
-
                 <label>CHRONICLE</label><textarea id="bio" rows="4"></textarea>
-                <label>FORBIDDEN NOTE</label><textarea id="note" rows="3"></textarea>
+                <label>FORBIDDEN NOTE</label><textarea id="note" rows="2"></textarea>
             </div>
-            
-            <div id="btn-group" style="margin-top: 12px;">
+            <div id="btn-group" style="margin-top: 15px;">
                 <button id="save-btn" class="g-btn" style="width: 100%;" onclick="saveData()">SEAL CONTRACT</button>
                 <div id="edit-group" style="display: none; gap: 10px;">
                     <button class="g-btn" style="flex: 1; background: #004d40;" onclick="updateData()">UPDATE</button>
@@ -138,7 +162,6 @@
     </div>
 
     <script type="module">
-        /* Firebase 로직 및 이미지 압축 로직 (이전과 동일) */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -162,81 +185,89 @@
         let selectedFile = null;
         let currentDocId = null;
 
-        window.previewHero = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    let width = img.width, height = img.height, max_size = 1200;
-                    if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } }
-                    else { if (height > max_size) { width *= max_size / height; height = max_size; } }
-                    canvas.width = width; canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        selectedFile = blob;
-                        document.getElementById('main-view-img').src = URL.createObjectURL(blob);
-                        document.getElementById('main-view-img').style.display = 'block';
-                        document.getElementById('upload-zone').style.display = 'none';
-                    }, 'image/png', 1.0); // PNG로 유지해야 투명도가 살아있음
-                };
-            };
-        };
-
-        // 기타 기능 함수들은 이전과 동일 (생략하지 않고 내부적으로 유지)
-        window.handleAuth = async (type) => {
+        document.getElementById('login-trigger').onclick = async () => {
             const email = document.getElementById('email').value;
             const pw = document.getElementById('pw').value;
-            try {
-                if(type === 'login') await signInWithEmailAndPassword(auth, email, pw);
-                else await createUserWithEmailAndPassword(auth, email, pw);
-            } catch(e) { alert(e.message); }
+            try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert(e.message); }
         };
-        window.handleLogout = () => signOut(auth);
+        document.getElementById('signup-trigger').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const pw = document.getElementById('pw').value;
+            try { await createUserWithEmailAndPassword(auth, email, pw); alert("가입 완료!"); } catch(e) { alert(e.message); }
+        };
+        document.getElementById('logout-trigger').onclick = () => signOut(auth);
+
         onAuthStateChanged(auth, (user) => {
-            if(user) { currentUser = user; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').classList.add('active'); loadList(); }
-            else { document.getElementById('auth-screen').style.display = 'block'; document.getElementById('main-app').classList.remove('active'); }
+            if(user) {
+                currentUser = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('active');
+                loadList();
+            } else {
+                document.getElementById('auth-screen').style.display = 'block';
+                document.getElementById('main-app').classList.remove('active');
+            }
         });
+
         window.toggleTrait = (el) => el.classList.toggle('selected');
         window.addEtcTrait = () => {
             const val = document.getElementById('etc-trait').value.trim();
             if(!val) return;
-            const chip = document.createElement('span'); chip.className = "trait-chip selected"; chip.innerText = val;
-            chip.onclick = function() { toggleTrait(this); }; document.getElementById('trait-box').appendChild(chip);
+            const chip = document.createElement('span');
+            chip.className = "trait-chip selected";
+            chip.innerText = val;
+            chip.onclick = function() { toggleTrait(this); };
+            document.getElementById('trait-box').appendChild(chip);
             document.getElementById('etc-trait').value = "";
         };
+
+        window.previewHero = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            selectedFile = file;
+            const img = document.getElementById('main-view-img');
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+            document.getElementById('upload-zone').style.display = 'none';
+            document.getElementById('re-summon-btn').style.display = 'block';
+            // 소환 시 스크롤을 맨 위로 초기화
+            document.querySelector('.summon-stage').scrollTop = 0;
+        };
+
+        window.saveData = async () => {
+            if(!selectedFile) return alert("이미지를 소환하세요.");
+            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
+            const sRef = ref(storage, `souls/${Date.now()}`);
+            try {
+                const uploadTask = await uploadBytes(sRef, selectedFile);
+                const url = await getDownloadURL(uploadTask.ref);
+                await addDoc(collection(db, "characters"), {
+                    nickname: document.getElementById('nickname').value,
+                    gender: document.getElementById('gender').value,
+                    level: document.getElementById('level').value,
+                    traits: traits, bio: document.getElementById('bio').value,
+                    note: document.getElementById('note').value,
+                    imageUrl: url, author: currentUser.uid, time: new Date()
+                });
+                alert("계약 완료."); location.reload();
+            } catch(e) { alert(e.message); }
+        };
+
         function loadList() {
             onSnapshot(query(collection(db, "characters"), orderBy("time", "desc")), (snap) => {
-                const list = document.getElementById('hero-list'); list.innerHTML = "";
+                const list = document.getElementById('hero-list');
+                list.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
-                    const div = document.createElement('div'); div.className = "hero-card";
+                    const div = document.createElement('div');
+                    div.className = "hero-card";
                     div.innerHTML = `<img src="${data.imageUrl}"> <div><b>${data.nickname}</b><br><small>${data.gender} / Lv.${data.level}</small></div>`;
-                    div.onclick = () => showDetail(d.id, data); list.appendChild(div);
+                    div.onclick = () => showDetail(d.id, data);
+                    list.appendChild(div);
                 });
             });
         }
-        window.saveData = async () => {
-            if(!selectedFile) return alert("이미지가 필요합니다.");
-            const traits = [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText);
-            const sRef = ref(storage, `final/${Date.now()}.png`);
-            await uploadBytes(sRef, selectedFile);
-            const url = await getDownloadURL(sRef);
-            await addDoc(collection(db, "characters"), {
-                nickname: document.getElementById('nickname').value,
-                gender: document.getElementById('gender').value,
-                level: document.getElementById('level').value,
-                traits: traits, bio: document.getElementById('bio').value,
-                note: document.getElementById('note').value,
-                imageUrl: url, author: currentUser.uid, time: new Date()
-            });
-            alert("저장 완료."); resetForm();
-        };
+
         function showDetail(id, data) {
             currentDocId = id;
             document.getElementById('nickname').value = data.nickname;
@@ -247,6 +278,9 @@
             document.getElementById('main-view-img').src = data.imageUrl;
             document.getElementById('main-view-img').style.display = 'block';
             document.getElementById('upload-zone').style.display = 'none';
+            document.getElementById('re-summon-btn').style.display = 'block';
+            document.querySelector('.summon-stage').scrollTop = 0;
+
             const box = document.getElementById('trait-box');
             box.innerHTML = `<span class="trait-chip" onclick="toggleTrait(this)">용감함</span><span class="trait-chip" onclick="toggleTrait(this)">광기</span><span class="trait-chip" onclick="toggleTrait(this)">냉혈</span><span class="trait-chip" onclick="toggleTrait(this)">타락</span>`;
             data.traits.forEach(t => {
@@ -257,9 +291,11 @@
                 }
                 chip.classList.add('selected');
             });
+
             document.getElementById('save-btn').style.display = 'none';
             document.getElementById('edit-group').style.display = (currentUser.uid === data.author) ? 'flex' : 'none';
         }
+
         window.updateData = async () => {
             await updateDoc(doc(db, "characters", currentDocId), {
                 nickname: document.getElementById('nickname').value,
@@ -268,17 +304,11 @@
                 traits: [...document.querySelectorAll('.trait-chip.selected')].map(t => t.innerText),
                 bio: document.getElementById('bio').value, note: document.getElementById('note').value
             });
-            alert("수정 완료."); resetForm();
+            alert("수정 완료."); location.reload();
         };
-        window.deleteData = async () => { if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); resetForm(); } };
-        window.resetForm = () => {
-            currentDocId = null; selectedFile = null;
-            document.getElementById('main-view-img').style.display = 'none';
-            document.getElementById('upload-zone').style.display = 'block';
-            document.getElementById('save-btn').style.display = 'block';
-            document.getElementById('edit-group').style.display = 'none';
-            ['nickname', 'bio', 'note', 'etc-trait'].forEach(id => document.getElementById(id).value = "");
-            document.getElementById('trait-box').innerHTML = `<span class="trait-chip" onclick="toggleTrait(this)">용감함</span><span class="trait-chip" onclick="toggleTrait(this)">광기</span><span class="trait-chip" onclick="toggleTrait(this)">냉혈</span><span class="trait-chip" onclick="toggleTrait(this)">타락</span>`;
+
+        window.deleteData = async () => {
+            if(confirm("기록을 삭제합니까?")) { await deleteDoc(doc(db, "characters", currentDocId)); location.reload(); }
         };
     </script>
 </body>
