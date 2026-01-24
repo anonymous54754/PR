@@ -33,7 +33,7 @@
         .main-container { display: grid; grid-template-columns: 280px 1fr 350px; width: 95%; height: 90%; gap: 20px; }
 
         input, textarea, select { background: #000; border: 1px solid var(--gold); color: #fff; padding: 10px; border-radius: 4px; width: 100%; margin: 5px 0; }
-        input:disabled, textarea:disabled, select:disabled { opacity: 0.7; cursor: default; border-color: #555; color: var(--gold); }
+        input:disabled, textarea:disabled, select:disabled { opacity: 0.8; cursor: default; border-color: #444; color: var(--gold); }
 
         .btn-game {
             background: linear-gradient(to bottom, #8d6e63, #3e2723);
@@ -52,21 +52,9 @@
         .user-mini-card:hover { background: rgba(255,255,255,0.1); }
 
         .char-frame { width: 100%; height: 100%; border: 8px double var(--gold); background: #000; position: relative; overflow: hidden; border-radius: 15px; }
-        
-        /* 현재 로그인 상태 표시기 (테스트용) */
-        .login-info { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid var(--gold); z-index: 1000; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
-
-    <div class="login-info">
-        <span>Logged in as:</span>
-        <select id="current-user" style="width:100px; margin:0; padding:2px;">
-            <option value="hammii">hammii (작성자)</option>
-            <option value="admin">admin (관리자)</option>
-            <option value="guest">guest (타인)</option>
-        </select>
-    </div>
 
     <div id="gender-screen" class="screen active">
         <div style="text-align:center;">
@@ -106,7 +94,7 @@
                 <h3 id="form-title" style="color:var(--gold); font-family:'Cinzel';">NEW CHARACTER</h3>
                 
                 <label>NICKNAME</label>
-                <input type="text" id="nickname" placeholder="이름을 입력하세요">
+                <input type="text" id="nickname">
                 
                 <div style="display:flex; gap:10px;">
                     <div style="flex:1;"><label>RACE</label>
@@ -126,30 +114,28 @@
                 </div>
 
                 <label style="margin-top:15px; display:block;">BIO</label>
-                <textarea id="bio" rows="3" placeholder="캐릭터 소개..."></textarea>
+                <textarea id="bio" rows="3"></textarea>
 
                 <div style="border:1px solid #5d4037; padding:10px; margin-top:10px; border-radius:5px;">
                     <label style="font-size:12px; color:var(--gold);">SECRET NOTE</label>
-                    <textarea id="note-content" placeholder="비밀 메모..."></textarea>
-                    <label style="font-size:11px;"><input type="checkbox" id="is-secret" style="width:auto;"> 비밀로 설정</label>
+                    <textarea id="note-content"></textarea>
                 </div>
 
                 <div id="action-buttons">
-                    <button id="save-btn" class="btn-game" onclick="saveCharacter()">저장하기 (NEW SLOT)</button>
-                    <div id="edit-delete-group" style="display:none; gap:10px;">
-                        <button id="edit-btn" class="btn-game" style="flex:1;" onclick="enableEdit()">수정하기</button>
-                        <button id="delete-btn" class="btn-game btn-delete" style="flex:1;" onclick="deleteCharacter()">삭제하기</button>
-                        <button id="update-btn" class="btn-game" style="display:none;" onclick="updateCharacter()">변경내용 저장</button>
+                    <button id="save-btn" class="btn-game" onclick="saveCharacter()">저장하기</button>
+                    <div id="auth-buttons" style="display:none; gap:10px;">
+                        <button id="edit-btn" class="btn-game" style="flex:1;" onclick="enableEdit()">수정</button>
+                        <button id="delete-btn" class="btn-game btn-delete" style="flex:1;" onclick="deleteCharacter()">삭제</button>
                     </div>
+                    <button id="update-btn" class="btn-game" style="display:none;" onclick="updateCharacter()">변경내용 저장</button>
                 </div>
-                <div id="author-info" style="font-size:11px; color:#888; margin-top:10px; text-align:right;"></div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -165,12 +151,16 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
+        // [인증 시뮬레이션] 실제 유저 정보를 여기에 담으세요
+        const currentUser = {
+            uid: "user_12345", // 실제 로그인한 유저 ID
+            role: "user"       // 'admin' 또는 'user'
+        };
+
         let selectedGender = "";
         let selectedFile = null;
-        let currentDocId = null; // 현재 불러온 문서 ID
-        let currentLoadedData = null;
+        let currentDocId = null;
 
-        // 1. 화면 전환 및 초기화
         window.selectGender = (g) => {
             selectedGender = g;
             document.getElementById('gender-screen').classList.remove('active');
@@ -181,27 +171,29 @@
         window.resetForm = () => {
             currentDocId = null;
             document.getElementById('form-title').innerText = "NEW CHARACTER";
-            document.getElementById('nickname').value = "";
-            document.getElementById('nickname').disabled = false;
-            document.getElementById('lv-val').value = 1;
-            document.getElementById('lv-val').disabled = false;
-            document.getElementById('race').disabled = false;
-            document.getElementById('bio').value = "";
-            document.getElementById('bio').disabled = false;
-            document.getElementById('note-content').value = "";
-            document.getElementById('note-content').disabled = false;
-            document.getElementById('char-img-display').style.display = 'none';
-            document.getElementById('upload-placeholder').style.display = 'block';
+            toggleInputs(false);
+            clearFields();
             document.getElementById('save-btn').style.display = 'block';
-            document.getElementById('edit-delete-group').style.display = 'none';
-            document.getElementById('add-tag-btn').style.display = 'inline-block';
-            document.getElementById('author-info').innerText = "";
-            
-            const tags = document.querySelectorAll('.tag');
-            tags.forEach(t => t.classList.remove('active'));
+            document.getElementById('auth-buttons').style.display = 'none';
+            document.getElementById('update-btn').style.display = 'none';
         };
 
-        // 2. 이미지 처리
+        function toggleInputs(disabled) {
+            const inputs = ['nickname', 'race', 'lv-val', 'bio', 'note-content'];
+            inputs.forEach(id => document.getElementById(id).disabled = disabled);
+            document.getElementById('add-tag-btn').style.display = disabled ? 'none' : 'inline-block';
+        }
+
+        function clearFields() {
+            document.getElementById('nickname').value = "";
+            document.getElementById('lv-val').value = 1;
+            document.getElementById('bio').value = "";
+            document.getElementById('note-content').value = "";
+            document.getElementById('char-img-display').style.display = 'none';
+            document.getElementById('upload-placeholder').style.display = 'block';
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        }
+
         window.previewImage = (e) => {
             selectedFile = e.target.files[0];
             const reader = new FileReader();
@@ -214,27 +206,13 @@
             reader.readAsDataURL(selectedFile);
         };
 
-        // 3. 태그 관리
         window.toggleTag = (el) => {
-            if(document.getElementById('nickname').disabled) return; // 보기 모드면 클릭 불가
-            el.classList.toggle('active');
-        };
-        
-        window.addCustomTag = () => {
-            const val = prompt("추가할 특성:");
-            if(val) {
-                const span = document.createElement('span');
-                span.className = 'tag active'; span.innerText = val;
-                span.onclick = () => toggleTag(span);
-                document.getElementById('trait-container').insertBefore(span, document.getElementById('add-tag-btn'));
-            }
+            if(!document.getElementById('nickname').disabled) el.classList.toggle('active');
         };
 
-        // 4. 저장 (CREATE)
         window.saveCharacter = async () => {
             const name = document.getElementById('nickname').value;
-            const currentUser = document.getElementById('current-user').value;
-            if(!name) return alert("닉네임을 입력해주세요!");
+            if(!name) return alert("이름을 입력하세요!");
 
             try {
                 let imgUrl = "https://via.placeholder.com/400";
@@ -244,57 +222,43 @@
                     imgUrl = await getDownloadURL(uploadRes.ref);
                 }
 
-                const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
-
                 await addDoc(collection(db, "characters"), {
                     nickname: name,
                     gender: selectedGender,
                     race: document.getElementById('race').value,
                     level: Number(document.getElementById('lv-val').value),
-                    traits: traits,
+                    traits: Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText),
                     bio: document.getElementById('bio').value,
                     note: document.getElementById('note-content').value,
-                    isSecret: document.getElementById('is-secret').checked,
                     imageUrl: imgUrl,
-                    author: currentUser, // 작성자 저장
+                    authorId: currentUser.uid, // 작성자 ID 저장
                     createdAt: new Date()
                 });
 
-                alert("새 캐릭터가 기록되었습니다!");
+                alert("저장 완료!");
                 resetForm();
-            } catch (err) { alert("저장 실패: " + err.message); }
+            } catch (err) { alert("실패: " + err.message); }
         };
 
-        // 5. 불러오기 (READ & VIEW MODE)
         function loadArchives() {
-            const q = query(collection(db, "characters"), orderBy("createdAt", "desc"));
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(query(collection(db, "characters"), orderBy("createdAt", "desc")), (snap) => {
                 const list = document.getElementById('recent-users-list');
                 list.innerHTML = "";
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
+                snap.forEach(d => {
+                    const data = d.data();
                     const card = document.createElement('div');
                     card.className = "user-mini-card";
-                    card.innerHTML = `
-                        <img src="${data.imageUrl}" width="50" height="50" style="border:1px solid var(--gold); margin-right:10px; object-fit:cover;">
-                        <div>
-                            <div style="color:var(--gold); font-weight:bold;">${data.nickname}</div>
-                            <div style="font-size:12px;">Lv.${data.level} ${data.race} / ${data.author}</div>
-                        </div>
-                    `;
-                    card.onclick = () => displayCharacter(docSnap.id, data);
+                    card.innerHTML = `<img src="${data.imageUrl}" width="40" height="40" style="object-fit:cover; margin-right:10px;">
+                                      <div><b>${data.nickname}</b><br><small>Lv.${data.level} ${data.race}</small></div>`;
+                    card.onclick = () => viewDetail(d.id, data);
                     list.appendChild(card);
                 });
             });
         }
 
-        function displayCharacter(id, data) {
+        function viewDetail(id, data) {
             currentDocId = id;
-            currentLoadedData = data;
-            const currentUser = document.getElementById('current-user').value;
-
-            // UI 셋팅
-            document.getElementById('form-title').innerText = "CHARACTER INFO";
+            document.getElementById('form-title').innerText = "CHARACTER VIEW";
             document.getElementById('nickname').value = data.nickname;
             document.getElementById('race').value = data.race;
             document.getElementById('lv-val').value = data.level;
@@ -303,78 +267,60 @@
             document.getElementById('char-img-display').src = data.imageUrl;
             document.getElementById('char-img-display').style.display = 'block';
             document.getElementById('upload-placeholder').style.display = 'none';
-            document.getElementById('author-info').innerText = `Author: ${data.author}`;
 
-            // 태그 셋팅
-            const allTags = document.querySelectorAll('.tag');
-            allTags.forEach(t => {
-                if(data.traits.includes(t.innerText)) t.classList.add('active');
-                else t.classList.remove('active');
+            document.querySelectorAll('.tag').forEach(t => {
+                t.classList.toggle('active', data.traits.includes(t.innerText));
             });
 
-            // 입력 비활성화 (보기 모드)
-            setInputsDisabled(true);
-
-            // 버튼 제어
+            toggleInputs(true);
             document.getElementById('save-btn').style.display = 'none';
-            document.getElementById('edit-delete-group').style.display = 'flex';
             document.getElementById('update-btn').style.display = 'none';
-            document.getElementById('edit-btn').style.display = 'none';
-            document.getElementById('delete-btn').style.display = 'none';
+            document.getElementById('auth-buttons').style.display = 'flex';
 
-            // 권한 체크
-            if(currentUser === data.author || currentUser === 'admin') {
-                document.getElementById('delete-btn').style.display = 'block';
-            }
-            if(currentUser === data.author) {
-                document.getElementById('edit-btn').style.display = 'block';
-            }
+            // 권한 체크: 수정(작성자만), 삭제(작성자 또는 어드민)
+            const isAuthor = currentUser.uid === data.authorId;
+            const isAdmin = currentUser.role === 'admin';
+
+            document.getElementById('edit-btn').style.display = isAuthor ? 'block' : 'none';
+            document.getElementById('delete-btn').style.display = (isAuthor || isAdmin) ? 'block' : 'none';
         }
 
-        function setInputsDisabled(state) {
-            document.getElementById('nickname').disabled = state;
-            document.getElementById('race').disabled = state;
-            document.getElementById('lv-val').disabled = state;
-            document.getElementById('bio').disabled = state;
-            document.getElementById('note-content').disabled = state;
-            document.getElementById('add-tag-btn').style.display = state ? 'none' : 'inline-block';
-        }
-
-        // 6. 수정 (UPDATE)
         window.enableEdit = () => {
-            setInputsDisabled(false);
-            document.getElementById('edit-btn').style.display = 'none';
+            toggleInputs(false);
+            document.getElementById('auth-buttons').style.display = 'none';
             document.getElementById('update-btn').style.display = 'block';
-            alert("편집 모드가 활성화되었습니다. 내용을 수정 후 [변경내용 저장]을 누르세요.");
         };
 
         window.updateCharacter = async () => {
-            if(!currentDocId) return;
             try {
-                const traits = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
                 await updateDoc(doc(db, "characters", currentDocId), {
                     nickname: document.getElementById('nickname').value,
                     race: document.getElementById('race').value,
                     level: Number(document.getElementById('lv-val').value),
-                    traits: traits,
+                    traits: Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText),
                     bio: document.getElementById('bio').value,
                     note: document.getElementById('note-content').value
                 });
-                alert("정보가 수정되었습니다!");
-                setInputsDisabled(true);
-                document.getElementById('update-btn').style.display = 'none';
-                document.getElementById('edit-btn').style.display = 'block';
-            } catch(e) { alert("수정 실패: " + e.message); }
+                alert("수정되었습니다.");
+                viewDetail(currentDocId, (await getDoc(doc(db, "characters", currentDocId))).data());
+            } catch(e) { alert("오류: " + e.message); }
         };
 
-        // 7. 삭제 (DELETE)
         window.deleteCharacter = async () => {
-            if(!confirm("정말로 이 모험의 기록을 파기하시겠습니까?")) return;
-            try {
+            if(confirm("기록을 삭제하시겠습니까?")) {
                 await deleteDoc(doc(db, "characters", currentDocId));
-                alert("기록이 삭제되었습니다.");
                 resetForm();
-            } catch(e) { alert("삭제 실패: " + e.message); }
+            }
+        };
+
+        window.addCustomTag = () => {
+            const val = prompt("특성 입력:");
+            if(val) {
+                const span = document.createElement('span');
+                span.className = 'tag active'; span.innerText = val;
+                span.onclick = () => toggleTag(span);
+                document.getElementById('trait-container').insertBefore(span, document.getElementById('add-tag-btn'));
+            }
         };
     </script>
 </body>
